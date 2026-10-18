@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Cliente - Secciones</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 30px; background-color: #f4f7f6; color: #333; max-width: 1000px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; color: #fff; padding: 15px 25px; border-radius: 8px; margin-bottom: 30px; }
+    .grid-opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card-opcion { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #e67e22; text-align: center; }
+    button { cursor: pointer; padding: 10px 20px; border: none; border-radius: 6px; background: #e67e22; color: #fff; font-weight: bold; margin-top: 15px; }
+    button:hover { filter: brightness(1.1); }
+    .btn-secundario { background: #7f8c8d; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Panel Principal de Cliente</h2>
+    <div>
+      <a href="checkout.html"><button style="background: #27ae60;">🛒 Ver Carrito</button></a>
+      <a href="principal.html"><button class="btn-secundario">← Salir</button></a>
+    </div>
+  </header>
+
+  <p>Aquí tienes las 3 secciones principales. Selecciona una para ir a su página detallada:</p>
+
+  <div class="grid-opciones">
+    <!-- Opción 1: Lleva a su propio HTML -->
+    <div class="card-opcion">
+      <h3>Platos por Menú</h3>
+      <p>Revisa el menú ejecutivo del día preparado especialmente para ti.</p>
+      <a href="plato-menu.html"><button>Ir a Platos por Menú</button></a>
+    </div>
+
+    <!-- Opción 2: Lleva a su propio HTML -->
+    <div class="card-opcion">
+      <h3>Plato Personalizado</h3>
+      <p>Crea tu propio plato eligiendo base, proteínas y complementos.</p>
+      <a href="plato-personalizado.html"><button>Ir a Plato Personalizado</button></a>
+    </div>
+
+    <!-- Opción 3: Lleva a su propio HTML -->
+    <div class="card-opcion">
+      <h3>Catering para Eventos</h3>
+      <p>Paquetes y servicios de comida a gran escala para tus reuniones.</p>
+      <a href="catering.html"><button>Ir a Catering</button></a>
+    </div>
+  </div>
+</body>
+</html>

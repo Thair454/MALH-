@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrar · Malhú Coffee break &amp; Catering</title>
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens (los mismos de index.html) ===== */
+:root {
+  --carbon: #0f0d0c;
+  --carbon-2: #1c1815;
+  --carbon-3: #26201b;
+  --linea: #3a3129;
+  --crema: #f5ebdd;
+  --crema-2: #c9bba8;
+  --crema-3: #968877;
+  --azafran: #f28c28;
+  --azafran-hover: #ffa041;
+  --bosque: #395941;
+  --error: #ff7a5c;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --d1: 180ms;
+  --d2: 600ms;
+  --gutter: clamp(16px, 4vw, 56px);
+  --f-display: "Gloock", Georgia, "Times New Roman", serif;
+  --f-texto: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--carbon); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100svh;
+  background: var(--carbon);
+  color: var(--crema);
+  font: 400 1rem/1.6 var(--f-texto);
+  -webkit-font-smoothing: antialiased;
+  display: grid; place-items: center;
+  padding: 48px var(--gutter);
+  overflow-x: clip;
+}
+/* Luz cálida de fondo */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(52% 46% at 50% 58%, rgb(242 140 40 / .16), rgb(242 140 40 / .05) 55%, transparent 78%);
+}
+::selection { background: var(--azafran); color: var(--carbon); }
+:focus-visible { outline: 2px solid var(--azafran); outline-offset: 3px; border-radius: 4px; }
+img { display: block; max-width: 100%; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===== Botones (mismos que index.html) ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  height: 52px; padding: 0 26px; border-radius: 999px; border: 0;
+  font: 600 1rem/1 var(--f-texto); text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: transform var(--d1) var(--ease), background-color var(--d1) var(--ease), box-shadow var(--d1) var(--ease), opacity var(--d1) var(--ease);
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-primario { background: var(--azafran); color: var(--carbon); }
+.btn-fantasma { color: var(--crema); background: transparent; box-shadow: inset 0 0 0 1px rgb(245 235 221 / .3); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primario:not(:disabled):hover { background: var(--azafran-hover); }
+  .btn-fantasma:not(:disabled):hover { box-shadow: inset 0 0 0 1px var(--crema); }
+}
+
+/* ===== Entrada ===== */
+.entrada { width: 100%; max-width: 980px; text-align: center; }
+.logo { margin: 0 auto; width: min(420px, 78vw); }
+.logo img { width: 100%; height: auto; }
+.bajada { margin: 20px auto 0; max-width: 40ch; color: var(--crema-2); font-size: clamp(1.0625rem, .4vw + 1rem, 1.25rem); text-wrap: pretty; }
+.aviso { margin: 20px auto 0; max-width: 46ch; padding: 12px 16px; border-radius: 12px; background: var(--carbon-2); color: var(--crema-2); font-size: .9375rem; }
+.aviso[hidden] { display: none; }
+
+.roles { list-style: none; margin: clamp(40px, 7vh, 64px) 0 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rol {
+  position: relative; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  padding: clamp(32px, 5vw, 52px) 24px clamp(28px, 4vw, 40px);
+  border: 0; border-radius: 14px;
+  background: var(--carbon-2);
+  box-shadow: inset 0 0 0 1px var(--linea);
+  color: var(--crema); text-decoration: none; text-align: center;
+  font: inherit; cursor: pointer;
+  transition: transform var(--d2) var(--ease), box-shadow var(--d1) var(--ease), background-color var(--d1) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.rol:focus-visible { outline: none; }
+.rol:focus-visible, .rol:hover { transform: translateY(-6px); box-shadow: inset 0 0 0 2px var(--azafran), 0 24px 50px -24px rgb(0 0 0 / .8); }
+@media (hover: none) { .rol:hover { transform: none; box-shadow: inset 0 0 0 1px var(--linea); } .rol:focus-visible { transform: translateY(-6px); box-shadow: inset 0 0 0 2px var(--azafran); } }
+.rol:active { transform: translateY(-2px) scale(.99); }
+.icono {
+  width: 96px; height: 96px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--carbon-3); color: var(--azafran);
+  transition: transform var(--d2) var(--ease);
+}
+.rol--propietario .icono { background: var(--bosque); color: var(--crema); }
+.rol:hover .icono, .rol:focus-visible .icono { transform: scale(1.06); }
+.icono svg { width: 48px; height: 48px; }
+.rol .rol-titulo { display: block; margin: 0; font: 400 clamp(2rem, 2.6vw + 1rem, 2.75rem)/1 var(--f-display); letter-spacing: -.01em; }
+.rol .rol-desc { display: block; margin: 0; max-width: 28ch; color: var(--crema-2); }
+.rol .ir { margin-top: 6px; display: inline-flex; align-items: center; gap: 8px; color: var(--azafran); font-weight: 600; }
+.rol .ir svg { width: 18px; height: 18px; transition: transform var(--d1) var(--ease); }
+.rol:hover .ir svg, .rol:focus-visible .ir svg { transform: translateX(4px); }
+
+.pie { margin-top: 40px; color: var(--crema-3); font-size: .875rem; }
+
+/* Entrada suave: solo transform y opacity */
+.aparece { opacity: 0; transform: translateY(16px); }
+.listo .aparece { opacity: 1; transform: none; transition: opacity var(--d2) var(--ease), transform var(--d2) var(--ease); }
+.listo .aparece:nth-child(2) { transition-delay: 80ms; }
+.listo .roles .aparece:nth-child(1) { transition-delay: 160ms; }
+.listo .roles .aparece:nth-child(2) { transition-delay: 240ms; }
+
+/* ===== Modal de contraseña ===== */
+.modal {
+  width: min(440px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 16px;
+  background: var(--carbon-2); color: var(--crema);
+  box-shadow: inset 0 0 0 1px var(--linea), 0 40px 80px -30px rgb(0 0 0 / .9);
+}
+.modal::backdrop { background: rgb(10 8 7 / .72); }
+.modal-in { padding: 32px 28px 28px; }
+.modal h2 { margin: 0; font: 400 2rem/1.05 var(--f-display); }
+.modal .ayuda { margin: 8px 0 0; color: var(--crema-2); }
+.campo { margin-top: 24px; }
+.campo label { display: block; font-weight: 600; margin-bottom: 8px; }
+.caja { position: relative; display: flex; align-items: center; }
+.caja input {
+  width: 100%; height: 52px; padding: 0 56px 0 16px;
+  border: 0; border-radius: 10px;
+  background: var(--carbon-3); color: var(--crema);
+  box-shadow: inset 0 0 0 1px var(--linea);
+  font: 400 1rem var(--f-texto);
+  caret-color: var(--azafran);
+  transition: box-shadow var(--d1) var(--ease);
+}
+.caja input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--azafran); }
+.caja input[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--error); }
+.caja input:disabled { opacity: .5; }
+.ver {
+  position: absolute; right: 6px; width: 44px; height: 44px;
+  display: grid; place-items: center; border: 0; border-radius: 8px;
+  background: transparent; color: var(--crema-2); cursor: pointer;
+}
+.ver svg { width: 22px; height: 22px; }
+.ver .ojo-cerrado { display: none; }
+.ver[aria-pressed="true"] .ojo-abierto { display: none; }
+.ver[aria-pressed="true"] .ojo-cerrado { display: block; }
+@media (hover: hover) and (pointer: fine) { .ver:hover { color: var(--crema); } }
+.mensaje { min-height: 24px; margin: 10px 0 0; font-size: .9375rem; color: var(--error); }
+.mensaje.espera { color: var(--crema-2); }
+.botones-modal { display: flex; gap: 12px; margin-top: 20px; }
+.botones-modal .btn { flex: 1; }
+
+/* ===== Móvil (desde 360px) ===== */
+@media (max-width: 640px) {
+  body { place-items: start center; padding-top: 40px; }
+  .roles { grid-template-columns: 1fr; }
+  .rol { flex-direction: row; text-align: left; align-items: center; gap: 18px; padding: 22px 20px; }
+  .icono { width: 64px; height: 64px; flex: none; }
+  .icono svg { width: 32px; height: 32px; }
+  .rol .texto-rol { display: grid; gap: 6px; }
+  .rol .ir { display: none; }
+  .modal-in { padding: 28px 20px 20px; }
+  .botones-modal { flex-direction: column-reverse; }
+}
+
+/* ===== Movimiento reducido ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation: none !important; }
+  .aparece { opacity: 1; transform: none; }
+  .rol:hover, .rol:focus-visible { transform: none; }
+}
+</style>
+</head>
+<body>
+<main class="entrada" id="entrada">
+  <h1 class="logo aparece">
+    <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+  </h1>
+  <p class="bajada aparece">¿Cómo quieres entrar?</p>
+  <p class="aviso" id="aviso" role="status" hidden>Esa página es solo para el propietario. Ingresa con tu correo y contraseña para continuar.</p>
+
+  <ul class="roles">
+    <li class="aparece">
+      <a class="rol" href="index.html">
+        <span class="icono" aria-hidden="true">
+          <!-- Persona -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        </span>
+        <span class="texto-rol">
+          <span class="rol-titulo">Cliente</span>
+          <span class="rol-desc">Mira el menú, arma tu plato o cotiza tu catering.</span>
+        </span>
+        <span class="ir" aria-hidden="true">Entrar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+    </li>
+    <li class="aparece">
+      <button class="rol rol--propietario" type="button" id="abrir-propietario" aria-haspopup="dialog">
+        <span class="icono" aria-hidden="true">
+          <!-- Persona en su escritorio -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="3.2"/><path d="M6.5 15c.6-2.9 2.8-4.8 5.5-4.8s4.9 1.9 5.5 4.8"/><path d="M2.5 15.5h19"/><path d="M5 15.5V21M19 15.5V21"/></svg>
+        </span>
+        <span class="texto-rol">
+          <span class="rol-titulo">Propietario</span>
+          <span class="rol-desc">Administra el menú, los precios y los platos personalizados.</span>
+        </span>
+        <span class="ir" aria-hidden="true">Ingresar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </button>
+    </li>
+  </ul>
+  <p class="pie aparece">Malhú Coffee break &amp; Catering</p>
+</main>
+
+<!-- Modal de contraseña (dialog nativo: atrapa el foco y se cierra con Escape) -->
+<dialog class="modal" id="modal" aria-labelledby="modal-titulo" aria-describedby="modal-ayuda">
+  <form class="modal-in" id="form-acceso" novalidate>
+    <h2 id="modal-titulo">Acceso propietario</h2>
+    <p class="ayuda" id="modal-ayuda">Ingresa con tu correo y contraseña de propietario.</p>
+    <div class="campo">
+      <label for="correo">Correo</label>
+      <div class="caja">
+        <input id="correo" name="correo" type="email" inputmode="email" autocomplete="username" required aria-describedby="mensaje">
+      </div>
+    </div>
+    <div class="campo">
+      <label for="contrasena">Contraseña</label>
+      <div class="caja">
+        <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required aria-describedby="mensaje">
+        <button class="ver" type="button" id="ver" aria-pressed="false" aria-label="Mostrar contraseña">
+          <svg class="ojo-abierto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ojo-cerrado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+        </button>
+      </div>
+      <p class="mensaje" id="mensaje" role="alert" aria-live="assertive"></p>
+    </div>
+    <div class="botones-modal">
+      <button class="btn btn-fantasma" type="button" id="cancelar">Cancelar</button>
+      <button class="btn btn-primario" type="submit" id="entrar">Entrar</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+/* Acceso del propietario con Firebase Authentication.
+   El usuario del propietario se crea en la consola de Firebase (Authentication → Usuarios);
+   las reglas de Firestore solo permiten editar a ese usuario (ver firestore.rules). */
+import { MalhuDB } from "./firebase.js";
+
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
+  const PANEL = "panel-propietario.html";
+
+  const tarjeta = $("#abrir-propietario");
+  const modal = $("#modal");
+  const form = $("#form-acceso");
+  const correo = $("#correo");
+  const input = $("#contrasena");
+  const mensaje = $("#mensaje");
+  const entrar = $("#entrar");
+  const ver = $("#ver");
+
+  // Llegó redirigido desde una página protegida
+  if (/[?&]acceso=requerido/.test(location.search)) $("#aviso").hidden = false;
+
+  // Entrada suave del título y las tarjetas
+  requestAnimationFrame(() => requestAnimationFrame(() => $("#entrada").classList.add("listo")));
+
+  async function abrir() {
+    // Si ya hay sesión abierta, el propietario va directo al panel
+    if (await MalhuDB.esperarSesion()) { location.href = PANEL; return; }
+    mensaje.textContent = "";
+    mensaje.classList.remove("espera");
+    input.value = "";
+    input.removeAttribute("aria-invalid");
+    correo.removeAttribute("aria-invalid");
+    entrar.disabled = false;
+    mostrar(false);
+    modal.showModal();
+    if (!reducir) modal.animate([{ opacity: 0, transform: "translateY(12px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 300, easing: EASE });
+    (correo.value ? input : correo).focus();
+  }
+
+  function cerrar() {
+    modal.close();
+  }
+  // Al cerrarse (Cancelar, Escape o tras entrar), el foco vuelve a la tarjeta
+  modal.addEventListener("close", () => tarjeta.focus());
+
+  tarjeta.addEventListener("click", abrir);
+  $("#cancelar").addEventListener("click", cerrar);
+  // Clic en el fondo oscuro también cierra
+  modal.addEventListener("click", (e) => { if (e.target === modal) cerrar(); });
+
+  function mostrar(visible) {
+    input.type = visible ? "text" : "password";
+    ver.setAttribute("aria-pressed", String(visible));
+    ver.setAttribute("aria-label", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+  }
+  ver.addEventListener("click", () => { mostrar(input.type === "password"); input.focus(); });
+
+  // Errores de Firebase Auth en palabras claras
+  function textoError(codigo) {
+    if (/invalid-credential|wrong-password|user-not-found|invalid-email|invalid-login/.test(codigo)) return "Correo o contraseña incorrectos.";
+    if (/too-many-requests/.test(codigo)) return "Demasiados intentos. Espera unos minutos y vuelve a intentar.";
+    if (/network/.test(codigo)) return "Sin conexión. Revisa tu internet e inténtalo otra vez.";
+    if (/operation-not-allowed|configuration-not-found/.test(codigo)) return "El acceso con correo aún no está activado en Firebase (Authentication → Método de acceso).";
+    return "No se pudo entrar. Inténtalo otra vez.";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    mensaje.classList.remove("espera");
+    if (!correo.value.trim()) {
+      correo.setAttribute("aria-invalid", "true");
+      mensaje.textContent = "Escribe tu correo.";
+      correo.focus();
+      return;
+    }
+    if (!input.value) {
+      input.setAttribute("aria-invalid", "true");
+      mensaje.textContent = "Escribe tu contraseña.";
+      input.focus();
+      return;
+    }
+    entrar.disabled = true;
+    mensaje.classList.add("espera");
+    mensaje.textContent = "Comprobando…";
+    try {
+      await MalhuDB.entrar(correo.value.trim(), input.value);
+      location.href = PANEL;
+    } catch (er) {
+      entrar.disabled = false;
+      mensaje.classList.remove("espera");
+      mensaje.textContent = textoError(er && er.code ? er.code : "");
+      input.value = "";
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+    }
+  });
+
+  [correo, input].forEach((c) => c.addEventListener("input", () => c.removeAttribute("aria-invalid")));
+})();
+</script>
+</body>
+</html>

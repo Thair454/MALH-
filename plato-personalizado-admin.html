@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es-PE" class="protegida">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Editar Arma tu plato · Malhú Coffee break &amp; Catering</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+<script src="app.js"></script>
+<style>
+/* Pestañas de categorías (mismo aspecto que "Arma tu plato") */
+.herramientas { margin-top: clamp(32px, 5vh, 48px); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.buscar { flex: 1 1 260px; max-width: 420px; }
+.cats-admin { margin-top: 20px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.cats-admin::-webkit-scrollbar { display: none; }
+.cat-admin { flex: none; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px 0 16px; border: 0; border-radius: 999px; background: var(--carbon-3); color: var(--crema-2); font: 500 .9375rem var(--f-texto); cursor: pointer; }
+.cat-admin[aria-selected="true"] { background: var(--azafran); color: var(--carbon); }
+.cat-admin .dato { min-width: 26px; height: 26px; padding: 0 7px; border-radius: 999px; display: inline-grid; place-items: center; background: rgb(15 13 12 / .35); }
+.grupo-cat { margin-top: 28px; }
+.grupo-cat h2 { margin: 0 0 12px; font: 400 1.75rem/1.1 var(--f-display); }
+.repetido { color: #ffb08a; }
+</style>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Propietario">
+    <a class="marca" href="panel-propietario.html" aria-label="Malhú, panel del propietario">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="panel-propietario.html">Panel</a></li>
+      <li><a href="plato-menu-admin.html">Platos</a></li>
+      <li><a href="plato-personalizado-admin.html" aria-current="page">Arma tu plato</a></li>
+      <li><a href="plato-personalizado.html" target="_blank" rel="noopener">Ver como cliente</a></li>
+    </ul>
+    <div class="acciones">
+      <span class="usuario" data-usuario></span>
+      <button class="btn btn-fantasma btn-chico" type="button" data-salir>Cerrar sesión</button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <p class="etiqueta-admin">Propietario · Arma tu plato</p>
+  <h1 class="titulo">Arma tu plato</h1>
+  <p class="subtitulo">Los ingredientes que eligen tus clientes. El precio del plato es la suma de cada ingrediente por las porciones elegidas, hasta el máximo que pongas.</p>
+
+  <div class="herramientas">
+    <div class="buscar">
+      <label class="sr" for="buscar">Buscar ingrediente</label>
+      <input class="campo" id="buscar" type="search" placeholder="Buscar ingrediente…" autocomplete="off">
+    </div>
+    <button class="btn btn-primario" type="button" id="agregar">Agregar ingrediente</button>
+  </div>
+  <div class="cats-admin" role="tablist" aria-label="Categorías" id="cats"></div>
+
+  <div id="estado-lista" class="vacio-admin" style="margin-top:24px">Cargando ingredientes…</div>
+  <div id="grupos" role="tabpanel" aria-labelledby=""></div>
+</main>
+
+<!-- Editor de un ingrediente -->
+<dialog class="editor" id="editor" aria-labelledby="editor-titulo">
+  <form id="form-ing" novalidate>
+    <h2 id="editor-titulo">Editar ingrediente</h2>
+    <button class="btn btn-redondo editor-cerrar" type="button" data-cerrar aria-label="Cerrar sin guardar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="campos">
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-nombre">Nombre</label>
+        <input class="campo" id="i-nombre" required aria-describedby="err-nombre" autocomplete="off">
+        <p class="err" id="err-nombre" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-categoria">Categoría</label>
+        <select class="campo" id="i-categoria"></select>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-precio">Precio por porción (S/)</label>
+        <input class="campo" id="i-precio" type="number" inputmode="decimal" min="0" step="0.05" aria-describedby="err-precio">
+        <p class="err" id="err-precio" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-maximo">Máximo de porciones por plato</label>
+        <input class="campo" id="i-maximo" type="number" inputmode="numeric" min="1" max="9" step="1" aria-describedby="err-maximo">
+        <p class="err" id="err-maximo" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-tamano">Tamaño de la porción</label>
+        <input class="campo" id="i-tamano" type="number" inputmode="decimal" min="0" aria-describedby="err-tamano">
+        <p class="err" id="err-tamano" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="i-unidad">Medida</label>
+        <select class="campo" id="i-unidad">
+          <option value="g">Gramos (g)</option>
+          <option value="unidad">Unidades (1 huevo, 1 limón…)</option>
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="subgrupo">
+      <legend>Nutrición por porción <span class="opcional">(opcional)</span></legend>
+      <div class="campos-4">
+        <div class="campo-grupo"><label class="campo-etq" for="i-kcal">Calorías</label><input class="campo" id="i-kcal" type="number" inputmode="decimal" min="0" placeholder="kcal"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="i-proteina">Proteína</label><input class="campo" id="i-proteina" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="i-carbo">Carbohidratos</label><input class="campo" id="i-carbo" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="i-grasa">Grasa</label><input class="campo" id="i-grasa" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+      </div>
+      <p class="ayuda">Si lo dejas vacío, la web usa la tabla USDA cuando el ingrediente la tiene, y si no, muestra "—".</p>
+    </fieldset>
+
+    <p class="editor-estado" id="editor-estado" role="status"></p>
+    <div class="editor-acciones">
+      <button class="btn btn-fantasma" type="button" data-cerrar>Cancelar</button>
+      <button class="btn btn-primario" type="submit" id="i-guardar">Guardar y publicar</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+import { MalhuDB, protegerPagina, el, avisar, mensajeError, abrirEditor, prepararEditor, num } from "./admin.js";
+
+await protegerPagina();
+
+const CATS = MalhuDB.CATEGORIAS;
+let ingredientes = [];
+let categoria = "todas";
+
+const grupos = document.getElementById("grupos");
+const estadoLista = document.getElementById("estado-lista");
+const buscar = document.getElementById("buscar");
+const contCats = document.getElementById("cats");
+const norm = (t) => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+
+/* ---------- Pestañas de categorías ---------- */
+const pestañas = [{ id: "todas", nombre: "Todas" }, ...CATS].map((c) => {
+  const b = el("button", "cat-admin");
+  b.type = "button";
+  b.setAttribute("role", "tab");
+  b.id = "tab-" + c.id;
+  b.append(c.nombre, el("span", "dato"));
+  b.addEventListener("click", () => { categoria = c.id; pintar(); });
+  contCats.append(b);
+  return { c, b };
+});
+contCats.addEventListener("keydown", (e) => {
+  const i = pestañas.findIndex((p) => p.b === document.activeElement);
+  if (i < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+  e.preventDefault();
+  const n = pestañas.length;
+  const j = e.key === "Home" ? 0 : e.key === "End" ? n - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
+  pestañas[j].b.focus();
+  categoria = pestañas[j].c.id;
+  pintar();
+});
+
+async function cargar() {
+  try {
+    ingredientes = await MalhuDB.ingredientes({ todos: true });
+    estadoLista.hidden = true;
+  } catch (e) {
+    ingredientes = [];
+    estadoLista.hidden = false;
+    estadoLista.className = "error-admin";
+    estadoLista.replaceChildren(el("p", "", "No se pudieron leer los ingredientes."), el("p", "", mensajeError(e)));
+  }
+  pintar();
+}
+
+function pintar() {
+  const q = norm(buscar.value);
+  const visibles = ingredientes.filter((i) => !q || norm(i.nombre).includes(q));
+  pestañas.forEach(({ c, b }) => {
+    b.setAttribute("aria-selected", String(c.id === categoria));
+    b.tabIndex = c.id === categoria ? 0 : -1;
+    b.querySelector(".dato").textContent = c.id === "todas" ? visibles.length : visibles.filter((i) => i.categoria === c.id).length;
+  });
+  grupos.setAttribute("aria-labelledby", "tab-" + categoria);
+  const repetidos = new Set();
+  const vistos = new Set();
+  ingredientes.forEach((i) => { const k = norm(i.nombre); if (vistos.has(k)) repetidos.add(k); vistos.add(k); });
+
+  const cats = categoria === "todas" ? CATS : CATS.filter((c) => c.id === categoria);
+  const bloques = cats.map((c) => {
+    const items = visibles.filter((i) => i.categoria === c.id);
+    if (!items.length) return null;
+    const sec = el("section", "grupo-cat");
+    sec.setAttribute("aria-label", c.nombre);
+    sec.append(el("h2", "", c.nombre));
+    const ul = el("ul", "ing-admin-lista");
+    items.forEach((i) => ul.append(fila(i, repetidos.has(norm(i.nombre)))));
+    sec.append(ul);
+    return sec;
+  }).filter(Boolean);
+  grupos.replaceChildren(...bloques);
+  if (!bloques.length && ingredientes.length) grupos.append(el("p", "vacio-admin", "No hay ingredientes con ese nombre en esta categoría."));
+}
+
+function fila(i, repetido) {
+  const li = el("li", "ing-admin");
+  const t = el("div");
+  t.append(el("h3", "ing-admin-nombre", i.nombre));
+  const datos = [
+    typeof i.precio === "number" ? formatoSoles(i.precio) + " por porción" : "Sin precio",
+    i.porcion || "Porción sin definir",
+    `máx. ${i.maximo || "—"}`,
+    typeof i.kcal === "number" ? `${i.kcal} kcal` : "nutrición automática",
+  ];
+  t.append(el("p", "ing-admin-datos dato", datos.join(" · ")));
+  if (repetido) t.append(el("p", "ing-admin-datos repetido", "Nombre repetido: el cliente solo ve uno. Quita el que sobra."));
+  const acc = el("div", "acciones-admin");
+  const editar = el("button", "btn btn-primario", "Editar");
+  editar.type = "button";
+  editar.setAttribute("aria-label", `Editar ${i.nombre}`);
+  editar.addEventListener("click", () => abrir(i, editar));
+  const quitar = el("button", "btn btn-peligro", "Quitar");
+  quitar.type = "button";
+  quitar.setAttribute("aria-label", `Quitar ${i.nombre}`);
+  quitar.addEventListener("click", () => eliminar(i, quitar));
+  acc.append(editar, quitar);
+  li.append(t, acc);
+  return li;
+}
+
+buscar.addEventListener("input", pintar);
+
+/* ---------- Editor ---------- */
+const dlg = document.getElementById("editor");
+const form = document.getElementById("form-ing");
+const $ = (s) => form.querySelector(s);
+prepararEditor(dlg);
+CATS.forEach((c) => $("#i-categoria").append(new Option(c.nombre, c.id)));
+let editando = null;
+
+function abrir(i, origen) {
+  editando = i;
+  $("#editor-titulo").textContent = i ? `Editar ${i.nombre}` : "Agregar ingrediente";
+  $("#i-nombre").value = i ? i.nombre : "";
+  $("#i-categoria").value = i ? i.categoria : (categoria !== "todas" ? categoria : CATS[0].id);
+  $("#i-precio").value = i && typeof i.precio === "number" ? i.precio : "";
+  $("#i-maximo").value = i && i.maximo ? i.maximo : 2;
+  $("#i-tamano").value = i && i.tamano ? i.tamano : "";
+  $("#i-unidad").value = i ? i.unidad : "g";
+  ["kcal", "proteina", "carbo", "grasa"].forEach((k) => ($(`#i-${k}`).value = i && typeof i[k] === "number" ? i[k] : ""));
+  form.querySelectorAll(".err").forEach((e) => (e.hidden = true));
+  form.querySelectorAll("[aria-invalid]").forEach((e) => e.removeAttribute("aria-invalid"));
+  $("#editor-estado").textContent = "";
+  $("#editor-estado").classList.remove("error");
+  $("#i-guardar").disabled = false;
+  abrirEditor(dlg, origen);
+}
+
+function error(id, msg) {
+  const p = $("#err-" + id);
+  p.textContent = msg;
+  p.hidden = !msg;
+  $("#i-" + id).setAttribute("aria-invalid", String(!!msg));
+  return !!msg;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nombre = $("#i-nombre").value.trim();
+  const precio = num($("#i-precio").value);
+  const maximo = num($("#i-maximo").value);
+  const tamano = num($("#i-tamano").value);
+  const fallas = [
+    error("nombre", nombre ? "" : "Escribe el nombre del ingrediente.") && "#i-nombre",
+    error("precio", precio === null || Number.isNaN(precio) || precio < 0 ? "Escribe el precio por porción (ej. 0.60)." : "") && "#i-precio",
+    error("maximo", maximo === null || Number.isNaN(maximo) || maximo < 1 || maximo > 9 || !Number.isInteger(maximo) ? "Un número entero de 1 a 9." : "") && "#i-maximo",
+    error("tamano", tamano === null || Number.isNaN(tamano) || tamano <= 0 ? "Escribe el tamaño de la porción (ej. 150)." : "") && "#i-tamano",
+  ].filter(Boolean);
+  if (fallas.length) { $(fallas[0]).focus(); return; }
+  const datos = { nombre, precio, maximo, tamano, categoria: $("#i-categoria").value, unidad: $("#i-unidad").value };
+  for (const k of ["kcal", "proteina", "carbo", "grasa"]) {
+    const v = num($(`#i-${k}`).value);
+    if (Number.isNaN(v) || (v !== null && v < 0)) { avisar("Revisa la nutrición: solo números.", true); $(`#i-${k}`).focus(); return; }
+    datos[k] = v;
+  }
+  $("#i-guardar").disabled = true;
+  $("#editor-estado").textContent = "Guardando…";
+  try {
+    await MalhuDB.guardarIngrediente(editando && editando.coleccion, editando && editando.docId, datos);
+    dlg.close();
+    avisar(`${nombre} guardado. Ya se ve en "Arma tu plato".`);
+    await cargar();
+  } catch (er) {
+    $("#editor-estado").textContent = mensajeError(er);
+    $("#editor-estado").classList.add("error");
+    $("#i-guardar").disabled = false;
+  }
+});
+
+async function eliminar(i, boton) {
+  if (!confirm(`¿Quitar "${i.nombre}" de Arma tu plato? Esta acción no se puede deshacer.`)) return;
+  boton.disabled = true;
+  try {
+    await MalhuDB.borrar(i.coleccion, i.docId);
+    avisar(`${i.nombre} se quitó.`);
+    await cargar();
+  } catch (er) {
+    boton.disabled = false;
+    avisar(mensajeError(er), true);
+  }
+}
+
+document.getElementById("agregar").addEventListener("click", (e) => abrir(null, e.currentTarget));
+
+await cargar();
+</script>
+</body>
+</html>

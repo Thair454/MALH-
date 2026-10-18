@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es-PE" class="protegida">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel del propietario · Malhú Coffee break &amp; Catering</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+<script src="app.js"></script>
+<script src="pedido.js"></script>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Propietario">
+    <a class="marca" href="panel-propietario.html" aria-label="Malhú, panel del propietario">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="panel-propietario.html" aria-current="page">Panel</a></li>
+      <li><a href="plato-menu-admin.html">Platos</a></li>
+      <li><a href="plato-personalizado-admin.html">Arma tu plato</a></li>
+      <li><a href="index.html" target="_blank" rel="noopener">Ver la web</a></li>
+    </ul>
+    <div class="acciones">
+      <span class="usuario" data-usuario></span>
+      <button class="btn btn-fantasma btn-chico" type="button" data-salir>Cerrar sesión</button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <p class="etiqueta-admin">Propietario</p>
+  <h1 class="titulo">Panel de control</h1>
+  <p class="subtitulo">Cambia los platos y los ingredientes que ven tus clientes, y sigue cada pedido desde que llega hasta que se entrega.</p>
+
+  <ul class="accesos">
+    <li>
+      <a class="acceso" href="plato-menu-admin.html">
+        <span class="acceso-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg></span>
+        <span><span class="acceso-titulo" style="display:block">Platos</span><span class="acceso-desc" style="display:block">Platos del día, del menú y exclusivos: precio, foto, descripción y nutrición.</span></span>
+      </a>
+    </li>
+    <li>
+      <a class="acceso" href="plato-personalizado-admin.html">
+        <span class="acceso-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <span><span class="acceso-titulo" style="display:block">Arma tu plato</span><span class="acceso-desc" style="display:block">Ingredientes, categorías, porciones, precios y máximo por plato.</span></span>
+      </a>
+    </li>
+    <li>
+      <a class="acceso" href="index.html" target="_blank" rel="noopener">
+        <span class="acceso-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span><span class="acceso-titulo" style="display:block">Ver la web</span><span class="acceso-desc" style="display:block">Ábrela como la ve un cliente, en otra pestaña.</span></span>
+      </a>
+    </li>
+  </ul>
+
+  <section class="seccion-admin" aria-labelledby="t-pedidos">
+    <div class="seccion-cabeza">
+      <div>
+        <h2 class="seccion-titulo" id="t-pedidos">Pedidos</h2>
+        <p class="seccion-nota">Se actualizan solos cuando entra un pedido nuevo.</p>
+      </div>
+      <div class="filtros" role="group" aria-label="Filtrar pedidos" id="filtros"></div>
+    </div>
+    <div id="pedidos-estado" class="vacio-admin">Cargando pedidos…</div>
+    <ul class="pedidos" id="pedidos" aria-labelledby="t-pedidos"></ul>
+  </section>
+</main>
+
+<script type="module">
+import { MalhuDB, protegerPagina, el, avisar, mensajeError } from "./admin.js";
+
+await protegerPagina();
+
+const ESTADOS = ["Pendiente de verificación", "Pago verificado", "En preparación", "Listo para recoger", "Entregado", "Cancelado"];
+const FILTROS = [
+  { id: "todos", nombre: "Todos", ok: () => true },
+  { id: "verificar", nombre: "Por verificar", ok: (p) => !p.estado || p.estado === "Pendiente de verificación" },
+  { id: "curso", nombre: "En curso", ok: (p) => ["Pago verificado", "En preparación", "Listo para recoger"].includes(p.estado) },
+  { id: "entregados", nombre: "Entregados", ok: (p) => p.estado === "Entregado" },
+  { id: "cancelados", nombre: "Cancelados", ok: (p) => p.estado === "Cancelado" },
+];
+let filtro = "todos";
+let pedidos = [];
+
+const lista = document.getElementById("pedidos");
+const estadoLista = document.getElementById("pedidos-estado");
+const contFiltros = document.getElementById("filtros");
+
+const botonesFiltro = FILTROS.map((f) => {
+  const b = el("button", "filtro");
+  b.type = "button";
+  b.append(f.nombre, el("span", "dato"));
+  b.addEventListener("click", () => { filtro = f.id; pintar(); });
+  contFiltros.append(b);
+  return b;
+});
+
+const soles = (v) => (typeof v === "number" ? formatoSoles(v) : "Por confirmar");
+const fechaDe = (p) => {
+  const d = p.creado && p.creado.toDate ? p.creado.toDate() : p.fecha ? new Date(p.fecha) : null;
+  return d ? d.toLocaleString("es-PE", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+};
+const celularBonito = (c) => String(c || "").replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+
+/** WhatsApp al cliente con su comprobante (texto de pedido.js). */
+function enlaceComprobante(p) {
+  const cel = String(p.cliente.celular).replace(/\D/g, "");
+  const lineas = [`Hola ${p.cliente.nombre || ""}, este es el comprobante de tu pedido ${p.numero} en Malhú:`, ""];
+  try { lineas.push(...lineasPedido(p)); } catch (e) { lineas.push(`Total: ${soles(p.totales && p.totales.total)}`); }
+  lineas.push("", `Estado: ${p.estado || "Pendiente de verificación"}`, "¡Gracias por tu pedido!");
+  return `https://wa.me/51${cel}?text=${encodeURIComponent(lineas.join("\n"))}`;
+}
+
+function tarjetaPedido(p) {
+  const li = el("li", "pedido");
+  const cab = el("div", "pedido-cabeza");
+  const izq = el("div");
+  izq.append(el("h3", "pedido-num", p.numero || "Pedido sin número"), el("span", "pedido-fecha dato", fechaDe(p)));
+  const der = el("div");
+  der.style.cssText = "display:flex;align-items:center;gap:12px";
+  const chip = el("span", "estado-chip", p.estado || "Pendiente de verificación");
+  chip.dataset.estado = p.estado || "";
+  der.append(chip, el("span", "pedido-total", soles(p.totales && p.totales.total)));
+  cab.append(izq, der);
+
+  const c = p.cliente || {};
+  const dl = el("dl", "pedido-datos");
+  const fila = (k, v) => { if (!v) return; const d = el("div"); d.append(el("dt", "", k), el("dd", "", v)); dl.append(d); };
+  fila("Cliente", c.nombre);
+  fila("Comprobante a", c.celular ? `Celular ${celularBonito(c.celular)}` : c.correo ? `Correo ${c.correo}` : "");
+  if (p.recojo) fila("Recojo", `${p.recojo.letra ? p.recojo.letra + ". " : ""}${p.recojo.nombre} · ${p.recojo.fecha || ""} ${p.recojo.hora || ""}`.trim());
+  if (p.evento && p.evento.lugar) fila("Lugar del evento", p.evento.lugar);
+  if (p.pago) fila("Pago", `${p.pago.nombreMetodo || p.pago.metodo || ""}${p.pago.operacion ? " · Operación " + p.pago.operacion : ""}`);
+  fila("Notas", c.notas);
+
+  const items = el("ul", "pedido-items");
+  (p.items || []).forEach((x) => {
+    const sub = typeof x.precioUnitario === "number" ? x.precioUnitario * (x.cantidad || 1) : null;
+    let t = x.tipo === "catering" && x.catering ? `Catering · ${x.catering.evento} · ${x.catering.personas} personas` : `${x.nombre} × ${x.cantidad}`;
+    if (x.tipo === "personalizado" && Array.isArray(x.ingredientes) && x.ingredientes.length)
+      t += ` (${x.ingredientes.map((i) => i.nombre + (i.cantidad > 1 ? " ×" + i.cantidad : "")).join(", ")})`;
+    items.append(el("li", "", `${t} · ${soles(sub)}`));
+  });
+
+  const pie = el("div", "pedido-pie");
+  const idSel = "estado-" + p.docId;
+  const etq = el("label", "sr", `Estado del pedido ${p.numero}`);
+  etq.htmlFor = idSel;
+  const sel = el("select", "campo");
+  sel.id = idSel;
+  ESTADOS.forEach((e) => { const o = el("option", "", e); o.value = e; sel.append(o); });
+  sel.value = ESTADOS.includes(p.estado) ? p.estado : ESTADOS[0];
+  sel.addEventListener("change", async () => {
+    sel.disabled = true;
+    const cambios = { estado: sel.value };
+    if (sel.value === "Pago verificado") cambios["pago.estado"] = "Verificado";
+    try { await MalhuDB.actualizarPedido(p.docId, cambios); avisar(`Pedido ${p.numero}: ${sel.value}.`); }
+    catch (e) { sel.value = p.estado || ESTADOS[0]; avisar(mensajeError(e), true); }
+    finally { sel.disabled = false; }
+  });
+  pie.append(etq, sel);
+  if (c.celular) {
+    const wa = el("a", "btn btn-primario", "Enviar comprobante por WhatsApp");
+    wa.href = enlaceComprobante(p);
+    wa.target = "_blank";
+    wa.rel = "noopener";
+    pie.append(wa);
+  } else if (c.correo) {
+    const m = el("a", "btn btn-fantasma", "Enviar comprobante por correo");
+    m.href = `mailto:${c.correo}?subject=${encodeURIComponent("Tu pedido " + p.numero + " · Malhú")}&body=${encodeURIComponent((() => { try { return lineasPedido(p).join("\n"); } catch (e) { return ""; } })())}`;
+    pie.append(m);
+  }
+
+  li.append(cab, dl, items, pie);
+  return li;
+}
+
+function pintar() {
+  FILTROS.forEach((f, k) => {
+    botonesFiltro[k].setAttribute("aria-pressed", String(f.id === filtro));
+    botonesFiltro[k].querySelector(".dato").textContent = pedidos.filter(f.ok).length;
+  });
+  const visibles = pedidos.filter(FILTROS.find((f) => f.id === filtro).ok);
+  const enFoco = document.activeElement && document.activeElement.id;
+  lista.replaceChildren(...visibles.map(tarjetaPedido));
+  if (enFoco && document.getElementById(enFoco)) document.getElementById(enFoco).focus();
+  estadoLista.hidden = visibles.length > 0;
+  if (!visibles.length) estadoLista.textContent = pedidos.length ? "No hay pedidos con este filtro." : "Aún no hay pedidos.";
+}
+
+MalhuDB.escucharPedidos(
+  (lista) => { pedidos = lista; pintar(); },
+  (e) => {
+    estadoLista.hidden = false;
+    estadoLista.className = "error-admin";
+    estadoLista.replaceChildren(el("p", "", "No se pudieron leer los pedidos."), el("p", "", mensajeError(e)));
+  }
+);
+</script>
+</body>
+</html>

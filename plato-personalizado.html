@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arma tu plato · Malhú Coffee break &amp; Catering</title>
+<meta name="description" content="Arma tu plato con base, proteína, verduras y complementos. Ves las calorías, la proteína y el precio mientras eliges, y llevas tu plan del día.">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js"></script>
+<script src="visual.js"></script>
+<script src="carrito.js"></script>
+<script src="pedido.js"></script>
+<script src="detalle-pedido.js"></script>
+<style>
+/* ===== Solo de esta página ===== */
+.pagina { max-width: 1440px; margin: 0 auto; padding: calc(var(--nav-h) + clamp(32px, 6vh, 64px)) var(--gutter) clamp(72px, 10vh, 120px); }
+.cabeza { max-width: 760px; }
+.titulo { margin: 0; font: 400 clamp(2.75rem, 5vw + .5rem, 5.5rem)/.95 var(--f-display); letter-spacing: -.015em; }
+.subtitulo { margin: 18px 0 0; max-width: 54ch; color: var(--crema-2); font-size: clamp(1.0625rem, .4vw + 1rem, 1.25rem); text-wrap: pretty; }
+.bloque { background: rgb(28 24 21 / .82); border-radius: 18px; box-shadow: inset 0 0 0 1px var(--linea); padding: clamp(18px, 2vw, 28px); }
+.bloque-titulo { margin: 0 0 16px; font: 400 clamp(1.5rem, 1.2vw + 1rem, 2rem)/1.05 var(--f-display); }
+.bloque-titulo:focus { outline: none; }
+.bloque-titulo:focus-visible { outline: 2px solid var(--azafran); }
+
+/* ---------- 1) Arma tu plato: 3 columnas desde 1100px ---------- */
+.armador { margin-top: clamp(36px, 5vh, 56px); display: grid; gap: clamp(16px, 2vw, 28px); grid-template-columns: 240px minmax(0, 1fr) 380px; align-items: start; }
+.cats-col { position: sticky; top: calc(var(--nav-h) + 20px); }
+.cats { display: grid; gap: 6px; }
+.cat {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 14px 0 18px;
+  border: 0; border-radius: 12px; background: transparent; color: var(--crema-2); font: 500 1rem var(--f-texto); text-align: left; cursor: pointer;
+  transition: background-color var(--d1) var(--ease), color var(--d1) var(--ease), transform var(--d1) var(--ease);
+}
+.cat:active { transform: scale(.97); }
+.cat[aria-selected="true"] { background: var(--carbon-3); color: var(--crema); box-shadow: inset 3px 0 0 var(--azafran); }
+@media (hover: hover) and (pointer: fine) { .cat:hover { color: var(--crema); background: rgb(38 32 27 / .6); } }
+.cat-cuenta { min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px; display: inline-grid; place-items: center; background: var(--carbon-3); color: var(--crema-3); }
+.cat[aria-selected="true"] .cat-cuenta { background: var(--carbon); }
+.cat .cat-cuenta.con { background: var(--azafran); color: var(--carbon); }
+
+.lista-titulo { margin: 0 0 14px; font: 400 1.5rem/1.1 var(--f-display); }
+.lista-col:focus { outline: none; }
+.ingredientes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ing {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center;
+  padding: 12px; border-radius: 14px; background: var(--carbon-3); box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow var(--d1) var(--ease);
+}
+.ing.ing-elegido { box-shadow: inset 0 0 0 1px rgb(242 140 40 / .55); }
+.ing-ficha { width: 64px; height: 64px; border-radius: 12px; overflow: hidden; }
+.ing-ficha img { width: 100%; height: 100%; object-fit: cover; }
+.sin-foto { display: grid; place-items: center; background: linear-gradient(150deg, var(--bosque), #23382a); color: var(--crema); font: 400 1.75rem/1 var(--f-display); }
+.ing-nombre { margin: 0; font: 600 1.0625rem/1.25 var(--f-texto); }
+.ing-desc { margin: 2px 0 0; color: var(--crema-2); font-size: .9375rem; line-height: 1.45; }
+.ing-datos { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 3px 9px; border-radius: 999px; background: var(--carbon); color: var(--verde); font-size: .75rem; }
+.chip-porcion { color: var(--crema-2); }
+.ing-lado { display: grid; justify-items: end; gap: 8px; }
+.ing-precio { margin: 0; color: var(--azafran); font-size: .9375rem; }
+.ing-precio.sin-precio { color: var(--crema-3); font-size: .75rem; text-align: right; max-width: 11ch; }
+.ing-control { min-width: 132px; display: flex; justify-content: flex-end; }
+.ing-anadir { height: 44px; padding: 0 18px; font-size: .9375rem; }
+.ing-paso { display: inline-flex; align-items: center; border-radius: 999px; background: var(--carbon); }
+.paso-btn { width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--crema); display: grid; place-items: center; cursor: pointer; transition: transform var(--d1) var(--ease), background-color var(--d1) var(--ease); }
+.paso-btn:active { transform: scale(.94); }
+.paso-btn:disabled { opacity: .35; cursor: not-allowed; }
+.paso-btn svg { width: 18px; height: 18px; }
+@media (hover: hover) and (pointer: fine) { .paso-btn:not(:disabled):hover { background: var(--carbon-3); } }
+.paso-n { min-width: 28px; text-align: center; font-size: 1rem; color: var(--azafran); }
+
+/* "Tu plato" */
+.resumen-col { position: sticky; top: calc(var(--nav-h) + 20px); max-height: calc(100dvh - var(--nav-h) - 40px); overflow: auto; overscroll-behavior: contain; }
+.tarjeta-kcal { border-radius: 16px; padding: 20px; background: linear-gradient(155deg, var(--bosque) 0%, #22301f 45%, var(--carbon) 100%); box-shadow: inset 0 0 0 1px rgb(123 198 126 / .18); }
+.kcal-etq { margin: 0; color: #d8e3d4; font-size: .875rem; }
+.kcal { margin: 2px 0 0; display: flex; align-items: baseline; gap: 8px; }
+.kcal-num { font: 400 clamp(3rem, 3vw + 1.5rem, 4rem)/1 var(--f-display); color: var(--azafran); font-variant-numeric: tabular-nums; }
+.kcal-unidad { color: var(--crema-2); font: 500 .9375rem var(--f-dato); }
+.macros { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.macros li { padding: 8px 10px; border-radius: 10px; background: rgb(15 13 12 / .55); display: grid; gap: 2px; }
+.macros .etq { color: #d8e3d4; font-size: .75rem; }
+.macros .dato { font-size: .9375rem; color: var(--crema); }
+.vitaminas { margin: 12px 0 0; color: var(--verde); font-size: .875rem; }
+.plato-vacio { margin: 16px 0 0; color: var(--crema-2); }
+.elegidos { list-style: none; margin: 14px 0 0; padding: 0; }
+.elegido { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--linea); }
+.elegido-nombre { margin: 0; font-weight: 600; }
+.elegido-datos { margin: 2px 0 0; color: var(--crema-3); }
+.elegido-n { color: var(--azafran); }
+.elegido-quitar, .comida-quitar { width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--crema-3); display: grid; place-items: center; cursor: pointer; transition: color var(--d1) var(--ease), transform var(--d1) var(--ease); }
+.elegido-quitar:active, .comida-quitar:active { transform: scale(.94); }
+.elegido-quitar svg, .comida-quitar svg { width: 18px; height: 18px; }
+@media (hover: hover) and (pointer: fine) { .elegido-quitar:hover, .comida-quitar:hover { color: var(--tomate); } }
+.aviso-datos { margin: 12px 0 0; color: var(--crema-3); font-size: .8125rem; }
+.costo { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--linea); display: grid; gap: 6px; }
+.costo-fila { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.costo-fila dt { color: var(--crema-2); }
+.costo-fila dd { margin: 0; text-align: right; font-size: .9375rem; color: var(--crema); }
+.costo-fila.total { margin-top: 4px; }
+.costo-fila.total dt { color: var(--crema); font-weight: 600; }
+.costo-fila.total dd { font: 400 clamp(1.75rem, 1.2vw + 1.2rem, 2.25rem)/1 var(--f-display); color: var(--azafran); font-variant-numeric: tabular-nums; }
+.acciones-plato { display: grid; gap: 8px; margin-top: 16px; }
+.acciones-plato .btn { width: 100%; }
+.acciones-plato .btn[aria-disabled="true"] { opacity: .45; }
+.nota-nutri { margin: 12px 0 0; color: var(--crema-3); font-size: .8125rem; }
+
+/* Barra inferior + panel (tablet y móvil) */
+.barra-plato { display: none; }
+.hoja { width: 100%; max-width: 640px; max-height: 88dvh; margin: auto auto 0; padding: 0; border: 0; border-radius: 20px 20px 0 0; background: var(--carbon-2); color: var(--crema); box-shadow: 0 -30px 60px -20px rgb(0 0 0 / .8); overflow: auto; overscroll-behavior: contain; }
+.hoja::backdrop { background: rgb(10 8 7 / .6); }
+.hoja-cabeza { position: sticky; top: 0; z-index: 1; display: flex; justify-content: flex-end; padding: 10px 12px 0; background: var(--carbon-2); }
+.hoja-cuerpo { padding: 0 20px 24px; }
+.hoja .resumen { padding: 0; background: none; box-shadow: none; }
+
+/* Revisión antes de WhatsApp */
+.revision { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 0; border-radius: 18px; background: var(--carbon-2); color: var(--crema); box-shadow: inset 0 0 0 1px var(--linea), 0 40px 80px -30px rgb(0 0 0 / .9); overflow: auto; }
+.revision::backdrop { background: rgb(10 8 7 / .7); }
+.revision form { position: relative; display: grid; gap: 14px; padding: 24px; }
+.revision h2 { margin: 0 52px 0 0; font: 400 1.75rem/1.1 var(--f-display); }
+.revision-cerrar { position: absolute; top: 12px; right: 12px; }
+.revision-lista { list-style: none; margin: 0; padding: 0; }
+.revision-lista li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--linea); }
+.revision-dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; }
+.revision-dl dt { color: var(--crema-2); }
+.revision-dl dd { margin: 0; text-align: right; font: 600 1rem var(--f-dato); }
+.revision-dl .revision-desglose { grid-column: 1 / -1; margin-top: -2px; font: 400 .875rem var(--f-texto); color: var(--crema-3); }
+.campo-label { display: block; font-weight: 600; margin-bottom: 6px; }
+.opcional { font-weight: 400; color: var(--crema-3); }
+.campo { width: 100%; min-height: 48px; padding: 12px 14px; border: 0; border-radius: 10px; background: var(--carbon-3); color: var(--crema); box-shadow: inset 0 0 0 1px var(--linea); font: 400 1rem var(--f-texto); }
+textarea.campo { min-height: 88px; resize: vertical; }
+.campo:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--azafran); }
+.casilla { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.casilla input { width: 22px; height: 22px; accent-color: var(--azafran); }
+.revision-acciones { display: grid; gap: 8px; }
+.revision-acciones .btn { width: 100%; }
+
+/* ---------- 2) Mi plan de hoy ---------- */
+.plan { margin-top: clamp(56px, 8vh, 96px); display: grid; gap: clamp(16px, 2vw, 28px); grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; }
+.plan-cabeza { grid-column: 1 / -1; }
+.plan-titulo { margin: 0; font: 400 clamp(2.25rem, 3.5vw + .5rem, 3.75rem)/1 var(--f-display); letter-spacing: -.01em; }
+.plan-sub { margin: 12px 0 0; color: var(--crema-2); max-width: 56ch; }
+.sub-titulo { margin: 0 0 14px; font: 400 1.375rem/1.15 var(--f-display); }
+.metas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.metas .campo { font: 600 1.125rem var(--f-dato); }
+.progreso { margin-top: 20px; display: grid; gap: 16px; }
+.progreso-cabeza { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.progreso-cabeza span:last-child { color: var(--crema-2); }
+.barra { height: 12px; border-radius: 999px; background: var(--carbon-3); overflow: hidden; }
+.barra-relleno { height: 100%; border-radius: inherit; background: var(--azafran); transform: scaleX(0); transform-origin: left; transition: transform var(--d2) var(--ease); }
+.barra.completa .barra-relleno { background: var(--verde); }
+.comidas { list-style: none; margin: 0; padding: 0; }
+.comida { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--linea); }
+.comida-nombre { margin: 0; font-weight: 600; line-height: 1.35; }
+.comida-datos { margin: 4px 0 0; color: var(--crema-3); }
+.comidas-vacio, .plan-incompletas, .sugerencias-vacio { margin: 0; color: var(--crema-2); }
+.plan-incompletas { margin-top: 10px; font-size: .875rem; color: var(--crema-3); }
+.sugerencias { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.sugerencia { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px; border-radius: 14px; background: var(--carbon-3); }
+.sugerencia img { weidth: 120px; height: 90px; object-fit: cover; border-radius: 10px; }
+.sugerencia-nombre { margin: 0; font: 400 1.25rem/1.1 var(--f-display); }
+.sugerencia-datos { margin: 4px 0 0; color: var(--crema-2); }
+.sugerencia-motivo { margin: 4px 0 0; color: var(--verde); font-size: .9375rem; }
+.sugerencia-enlace { display: inline-block; min-height: 44px; line-height: 44px; color: var(--crema); }
+.nota-plan { grid-column: 1 / -1; margin: 0; color: var(--crema-3); font-size: .875rem; }
+.col-plan { display: grid; gap: clamp(16px, 2vw, 28px); }
+
+/* Aviso visible: encima de la barra inferior cuando existe */
+.aviso-plato { z-index: 121; }
+
+/* ===== Tablet y móvil: el resumen pasa a barra inferior + panel ===== */
+@media (max-width: 1099px) {
+  .armador { grid-template-columns: minmax(0, 1fr); }
+  .cats-col { position: sticky; top: var(--nav-h); z-index: 5; margin: 0 calc(var(--gutter) * -1); padding: 8px var(--gutter); background: rgb(15 13 12 / .94); }
+  .cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .cats::-webkit-scrollbar { display: none; }
+  .cat { flex: none; min-height: 44px; padding: 0 10px 0 14px; white-space: nowrap; }
+  .cat[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--azafran); }
+  .resumen-col { display: none; }
+  .barra-plato { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom)); background: rgb(28 24 21 / .97); border-top: 1px solid var(--linea); }
+  .barra-boton { width: 100%; max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 8px 0 16px; border: 0; border-radius: 999px; background: var(--azafran); color: var(--carbon); font: 600 1rem var(--f-texto); cursor: pointer; transition: transform var(--d1) var(--ease); }
+  .barra-boton:active { transform: scale(.98); }
+  .barra-datos { flex: 1; display: flex; flex-wrap: wrap; gap: 2px 12px; text-align: left; }
+  .barra-ver { padding: 10px 16px; border-radius: 999px; background: var(--carbon); color: var(--crema); }
+  body { padding-bottom: 88px; }
+  .aviso-carrito { bottom: 96px; }
+  .plan { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .ing { grid-template-columns: 52px minmax(0, 1fr); gap: 12px; }
+  .ing-ficha { width: 52px; height: 52px; }
+  .ing-lado { grid-column: 1 / -1; grid-template-columns: 1fr auto; align-items: center; justify-items: stretch; }
+  .ing-precio.sin-precio { max-width: none; text-align: left; }
+  .metas { grid-template-columns: 1fr; }
+  .sugerencia { grid-template-columns: 88px minmax(0, 1fr); }
+  .sugerencia img { width: 88px; height: 72px; }
+  .barra-datos { font-size: .875rem; }
+}
+</style>
+<script type="module" src="firebase.js"></script>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- Fondo dinámico -->
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+  <span class="orbe-cursor"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Principal">
+    <a class="marca" href="index.html" aria-label="Malhú, inicio">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="catering.html">Catering</a></li>
+      <li><a href="plato-menu.html">Platos del día</a></li>
+      <li><a href="plato-personalizado.html" aria-current="page">Arma tu plato</a></li>
+    </ul>
+    <div class="acciones">
+      <button class="btn pausa" type="button" id="pausa" aria-pressed="false">
+        <svg class="ico-pausa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>
+        <span class="txt" id="pausa-txt">Pausar animaciones</span>
+      </button>
+      <button class="btn btn-primario boton-carrito" type="button" data-carrito-abrir aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+        <span class="txt">Carrito</span>
+        <span class="contador-carrito dato" data-carrito-cuenta hidden>0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <div class="cabeza revela">
+    <h1 class="titulo"><span class="linea"><span>Arma tu plato</span></span></h1>
+    <p class="subtitulo entra">Elige base, proteína, verduras y complementos. Mientras armas, ves las calorías, la proteína y el precio de tu plato.</p>
+  </div>
+
+  <!-- 1) Arma tu plato -->
+  <section class="armador" aria-labelledby="t-armar">
+    <h2 class="sr" id="t-armar">Elige tus ingredientes</h2>
+
+    <div class="cats-col">
+      <div class="cats" id="categorias" role="tablist" aria-label="Categorías de ingredientes"></div>
+    </div>
+
+    <div class="lista-col" id="panel-ingredientes" role="tabpanel" tabindex="-1">
+      <h3 class="lista-titulo" id="lista-titulo"></h3>
+      <ul class="ingredientes" id="ingredientes"></ul>
+    </div>
+
+    <aside class="resumen-col" id="lugar-resumen" aria-label="Tu plato">
+      <div class="resumen bloque" id="resumen">
+        <h2 class="bloque-titulo" id="t-plato" tabindex="-1">Tu plato</h2>
+        <div class="tarjeta-kcal">
+          <p class="kcal-etq">Calorías aproximadas</p>
+          <p class="kcal"><span class="kcal-num" id="kcal-num">0</span><span class="kcal-unidad">kcal</span></p>
+          <ul class="macros" aria-label="Macronutrientes">
+            <li><span class="etq">Proteína</span><span class="dato" id="m-proteina">0 g</span></li>
+            <li><span class="etq">Carbohidratos</span><span class="dato" id="m-carbo">0 g</span></li>
+            <li><span class="etq">Grasa</span><span class="dato" id="m-grasa">0 g</span></li>
+          </ul>
+          <p class="vitaminas" id="vitaminas">Vitaminas: —</p>
+        </div>
+        <p class="plato-vacio" id="plato-vacio">Tu plato está vacío. Elige ingredientes de la lista.</p>
+        <ul class="elegidos" id="elegidos" aria-label="Ingredientes de tu plato"></ul>
+        <p class="aviso-datos" id="aviso-datos" hidden></p>
+        <dl class="costo">
+          <div class="costo-fila"><dt>Plato armado</dt><dd class="dato" id="costo-base">S/ 0.00</dd></div>
+          <div class="costo-fila" id="fila-extras" hidden><dt>Extras</dt><dd class="dato" id="costo-extras">+ S/ 0.00</dd></div>
+          <div class="costo-fila total"><dt>Costo total</dt><dd id="precio-total">S/ 0.00</dd></div>
+        </dl>
+        <div class="acciones-plato">
+          <button class="btn btn-primario" type="button" id="al-carrito" data-requiere-plato aria-disabled="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+            Agregar al carrito
+          </button>
+          <button class="btn btn-fantasma" type="button" id="a-mi-plan" data-requiere-plato aria-disabled="true">Agregar a mi plan</button>
+          <button class="btn btn-fantasma" type="button" id="por-whatsapp" data-requiere-plato aria-disabled="true" aria-haspopup="dialog">Pedir por WhatsApp</button>
+        </div>
+        <p class="nota-nutri">Valores aproximados por porción (USDA FoodData Central).</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- 2) Mi plan de hoy -->
+  <section class="plan" id="plan" aria-labelledby="t-plan">
+    <div class="plan-cabeza">
+      <h2 class="plan-titulo" id="t-plan">Mi plan de hoy</h2>
+      <p class="plan-sub">Ponte una meta, registra lo que comes y te sugerimos platos para completar tu día.</p>
+    </div>
+
+    <div class="col-plan">
+      <div class="bloque">
+        <h3 class="sub-titulo">Tus metas</h3>
+        <div class="metas">
+          <div>
+            <label class="campo-label" for="meta-kcal">Calorías <span class="opcional">(kcal)</span></label>
+            <input class="campo" id="meta-kcal" type="number" inputmode="numeric" aria-describedby="ayuda-metas">
+          </div>
+          <div>
+            <label class="campo-label" for="meta-proteina">Proteína <span class="opcional">(g)</span></label>
+            <input class="campo" id="meta-proteina" type="number" inputmode="numeric" aria-describedby="ayuda-metas">
+          </div>
+        </div>
+        <p class="aviso-datos" id="ayuda-metas">Calorías de 1200 a 4000 kcal; proteína de 30 a 250 g.</p>
+        <div class="progreso">
+          <div>
+            <div class="progreso-cabeza"><span id="lbl-kcal">Calorías</span><span class="dato" id="barra-kcal-texto"></span></div>
+            <div class="barra" id="barra-kcal" role="progressbar" aria-labelledby="lbl-kcal" aria-valuemin="0"><div class="barra-relleno"></div></div>
+          </div>
+          <div>
+            <div class="progreso-cabeza"><span id="lbl-proteina">Proteína</span><span class="dato" id="barra-proteina-texto"></span></div>
+            <div class="barra" id="barra-proteina" role="progressbar" aria-labelledby="lbl-proteina" aria-valuemin="0"><div class="barra-relleno"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloque">
+        <h3 class="sub-titulo">Comidas de hoy</h3>
+        <p class="comidas-vacio" id="comidas-vacio">Aún no registras comidas hoy. Arma un plato y toca "Agregar a mi plan".</p>
+        <ul class="comidas" id="comidas" aria-label="Comidas registradas hoy"></ul>
+        <p class="plan-incompletas" id="plan-incompletas" hidden></p>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3 class="sub-titulo">Sugerencias para completar tu día</h3>
+      <p class="sugerencias-vacio" id="sugerencias-vacio" hidden></p>
+      <ul class="sugerencias" id="sugerencias"></ul>
+    </div>
+
+    <p class="nota-plan">Valores aproximados. No reemplaza la guía de un nutricionista.</p>
+    <p class="sr" id="anuncio-plan" aria-live="polite"></p>
+  </section>
+</main>
+
+<!-- Barra inferior (tablet y móvil) -->
+<div class="barra-plato">
+  <button class="barra-boton" type="button" id="abrir-hoja" aria-haspopup="dialog" aria-expanded="false" aria-controls="hoja">
+    <span class="barra-datos dato"><span id="barra-plato-precio">S/ 0.00</span><span id="barra-plato-kcal">0 kcal</span><span id="barra-plato-items">0 porciones</span></span>
+    <span class="barra-ver">Ver tu plato</span>
+  </button>
+</div>
+
+<dialog class="hoja" id="hoja" aria-labelledby="t-plato">
+  <div class="hoja-cabeza">
+    <button class="btn btn-redondo" type="button" data-cerrar-hoja aria-label="Cerrar tu plato">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoja-cuerpo" id="hoja-cuerpo"></div>
+</dialog>
+
+<!-- Revisión antes de abrir WhatsApp -->
+<dialog class="revision" id="revision" aria-labelledby="t-revision">
+  <form id="revision-form" method="dialog">
+    <h2 id="t-revision">Revisa tu pedido</h2>
+    <button class="btn btn-redondo revision-cerrar" type="button" data-cerrar-revision aria-label="Cerrar revisión">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <ul class="revision-lista" id="revision-lista" aria-label="Ingredientes y cantidades"></ul>
+    <dl class="revision-dl">
+      <dt>Costo total</dt><dd id="revision-total"></dd>
+      <dt class="sr">Detalle del costo</dt><dd class="revision-desglose" id="revision-desglose"></dd>
+      <dt>Calorías</dt><dd id="revision-kcal"></dd>
+    </dl>
+    <div>
+      <label class="campo-label" for="revision-nombre">Nombre <span class="opcional">(opcional)</span></label>
+      <input class="campo" id="revision-nombre" type="text" autocomplete="name">
+    </div>
+    <div>
+      <label class="campo-label" for="revision-notas">Notas <span class="opcional">(opcional)</span></label>
+      <textarea class="campo" id="revision-notas" placeholder="Ej. sin cebolla, salsa aparte"></textarea>
+    </div>
+    <label class="casilla"><input type="checkbox" id="revision-plan" checked> Agregar también a mi plan de hoy</label>
+    <div class="revision-acciones">
+      <button class="btn btn-primario" type="submit">Abrir WhatsApp con mi pedido</button>
+      <button class="btn btn-fantasma" type="button" data-cerrar-revision>Seguir armando</button>
+    </div>
+  </form>
+</dialog>
+
+<p class="sr" id="anuncio-plato" aria-live="polite"></p>
+<div class="aviso-carrito aviso-plato" id="aviso-plato" role="status"></div>
+
+<footer class="pie">
+  <div class="pie-in">
+    <div class="logo"><img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166" loading="lazy"></div>
+    <nav aria-label="Secciones">
+      <h2>Pide</h2>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catering.html">Catering para eventos</a></li>
+        <li><a href="plato-menu.html">Platos del día</a></li>
+        <li><a href="plato-personalizado.html" aria-current="page">Arma tu plato</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Malhú</h2>
+      <ul>
+        <li><a href="#plan">Mi plan de hoy</a></li>
+        <li><a href="principal.html">Acceso propietario</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie-legal"><p>© <span id="anio">2026</span> Malhú Coffee break &amp; Catering</p><p>Precios en soles (S/).</p></div>
+</footer>
+
+<script src="ingredientes.js"></script>
+<script src="platos.js"></script>
+<script src="plan.js"></script>
+<script src="arma-plato.js"></script>
+</body>
+</html>

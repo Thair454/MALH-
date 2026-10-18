@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Platos del día y menú · Malhú Coffee break &amp; Catering</title>
+<meta name="description" content="Platos del día y carta de Malhú: comida casera y fitness con ingredientes frescos. Agrégalos a tu carrito.">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js"></script>
+<script src="visual.js"></script>
+<script src="carrito.js"></script>
+<script src="pedido.js"></script>
+<script src="detalle-pedido.js"></script>
+<style>
+/* ===== Solo de esta página ===== */
+.pagina { padding-top: calc(var(--nav-h) + clamp(32px, 6vh, 64px)); }
+.seccion { max-width: 1440px; margin: 0 auto; padding: 0 var(--gutter) clamp(72px, 10vh, 120px); }
+.seccion-cabeza { text-align: center; max-width: 960px; margin: 0 auto; }
+.seccion-titulo { margin: 0; font: 400 clamp(2.5rem, 4.6vw + .5rem, 5rem)/.95 var(--f-display); letter-spacing: -.015em; }
+.seccion-sub { margin: 16px auto 0; max-width: 44ch; color: var(--crema-2); font-size: clamp(1.0625rem, .4vw + 1rem, 1.25rem); text-wrap: pretty; }
+.separador { max-width: 1440px; margin: 0 auto clamp(72px, 10vh, 120px); padding: 0 var(--gutter); }
+.separador hr { border: 0; height: 1px; background: var(--linea); margin: 0; }
+</style>
+<script type="module" src="firebase.js"></script>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- Fondo dinámico: luces cálidas que se mueven despacio y una que sigue al cursor -->
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+  <span class="orbe-cursor"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Principal">
+    <a class="marca" href="index.html" aria-label="Malhú, inicio">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="catering.html">Catering</a></li>
+      <li><a href="plato-menu.html" aria-current="page">Platos del día</a></li>
+      <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+    </ul>
+    <div class="acciones">
+      <button class="btn pausa" type="button" id="pausa" aria-pressed="false">
+        <svg class="ico-pausa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>
+        <span class="txt" id="pausa-txt">Pausar animaciones</span>
+      </button>
+      <button class="btn btn-primario boton-carrito" type="button" data-carrito-abrir aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+        <span class="txt">Carrito</span>
+        <span class="contador-carrito dato" data-carrito-cuenta hidden>0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <h1 class="sr">Platos del día y platos del menú de Malhú</h1>
+
+  <section class="seccion" aria-labelledby="titulo-dia">
+    <div class="seccion-cabeza revela">
+      <h2 class="seccion-titulo" id="titulo-dia"><span class="linea"><span>Platos del día</span></span></h2>
+      <p class="seccion-sub entra">Comida casera y fitness con ingredientes frescos, cocinada cada mañana.</p>
+    </div>
+    <div id="carrusel-dia"></div>
+  </section>
+
+  <div class="separador" aria-hidden="true"><hr></div>
+
+  <section class="seccion" aria-labelledby="titulo-menu">
+    <div class="seccion-cabeza revela">
+      <h2 class="seccion-titulo" id="titulo-menu"><span class="linea"><span>Platos del menú</span></span></h2>
+      <p class="seccion-sub entra">Nuestra carta, disponible todo el año.</p>
+    </div>
+    <div id="carrusel-menu"></div>
+  </section>
+
+  <div class="separador" aria-hidden="true" id="separador-exclusivos" hidden><hr></div>
+
+  <section class="seccion" aria-labelledby="titulo-exclusivos" id="seccion-exclusivos" hidden>
+    <div class="seccion-cabeza revela">
+      <h2 class="seccion-titulo" id="titulo-exclusivos"><span class="linea"><span>Platos exclusivos</span></span></h2>
+      <p class="seccion-sub entra">Ingredientes andinos y de temporada, en porciones pensadas para tu objetivo.</p>
+    </div>
+    <div id="carrusel-exclusivos"></div>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="pie-in">
+    <div class="logo"><img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166" loading="lazy"></div>
+    <nav aria-label="Secciones">
+      <h2>Pide</h2>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catering.html">Catering para eventos</a></li>
+        <li><a href="plato-menu.html" aria-current="page">Platos del día</a></li>
+        <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Contacto</h2>
+      <ul>
+        <li><a data-wa href="#" target="_blank" rel="noopener">WhatsApp</a></li>
+        <li><a href="principal.html">Acceso propietario</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie-legal"><p>© <span id="anio">2026</span> Malhú Coffee break &amp; Catering</p><p>Precios en soles (S/).</p></div>
+</footer>
+
+<!-- Información nutricional del plato (se abre al hacer clic en la foto o en el botón "i") -->
+<dialog class="ficha" id="ficha" aria-labelledby="ficha-nombre">
+  <div class="ficha-foto"><img id="ficha-img" alt="" width="800" height="600"></div>
+  <div class="ficha-cuerpo">
+    <button class="btn btn-redondo ficha-cerrar" type="button" data-ficha-cerrar aria-label="Cerrar información">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h2 class="ficha-nombre" id="ficha-nombre"></h2>
+    <p class="ficha-desc" id="ficha-desc"></p>
+    <p class="ficha-precio dato" id="ficha-precio"></p>
+    <h3 class="ficha-sub">Información nutricional <span>(por porción)</span></h3>
+    <dl class="ficha-nutri" id="ficha-nutri"></dl>
+    <p class="ficha-nota" id="ficha-nota" hidden>Aún no tenemos la información nutricional completa de este plato.</p>
+    <p class="ficha-nota" id="ficha-fuente" hidden>Valores aproximados (USDA FoodData Central). No reemplaza la guía de un nutricionista.</p>
+    <button class="btn btn-primario ficha-agregar" type="button" id="ficha-agregar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+      <span>Agregar al carrito</span>
+    </button>
+  </div>
+</dialog>
+
+<script src="platos.js"></script>
+<script src="carrusel.js"></script>
+<script>
+
+  /* ---------- Ficha de información nutricional ---------- */
+  const ficha = document.getElementById("ficha");
+  const reducirMov = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let platoEnFicha = null;
+  let origenFicha = null;
+
+  const NUTRIENTES = [
+    { clave: "kcal", nombre: "Calorías", unidad: "kcal" },
+    { clave: "proteina", nombre: "Proteínas", unidad: "g" },
+    { clave: "carbohidratos", nombre: "Carbohidratos", unidad: "g" },
+    { clave: "grasa", nombre: "Grasas", unidad: "g" },
+    { clave: "fibra", nombre: "Fibra", unidad: "g" },
+  ];
+
+  function verInfo(plato, origen) {
+    platoEnFicha = plato;
+    origenFicha = origen || document.activeElement;
+    const img = document.getElementById("ficha-img");
+    if (plato.foto) { img.src = plato.foto; img.alt = plato.alt || plato.nombre; img.hidden = false; }
+    else { img.removeAttribute("src"); img.alt = ""; img.hidden = true; }
+    document.getElementById("ficha-nombre").textContent = plato.nombre;
+    const desc = document.getElementById("ficha-desc");
+    desc.textContent = plato.descripcion || "";
+    desc.hidden = !plato.descripcion;
+    document.getElementById("ficha-precio").textContent =
+      typeof plato.precio === "number" ? formatoSoles(plato.precio) : "Precio por confirmar";
+
+    // Nunca se inventan datos: lo que falta se muestra como "Por confirmar"
+    const dl = document.getElementById("ficha-nutri");
+    let conDatos = 0;
+    dl.replaceChildren(
+      ...NUTRIENTES.map((n) => {
+        const valor = plato[n.clave];
+        const fila = document.createElement("div");
+        fila.className = "ficha-fila" + (typeof valor === "number" ? "" : " vacia");
+        const dt = document.createElement("dt");
+        dt.textContent = n.nombre;
+        const dd = document.createElement("dd");
+        dd.className = "dato";
+        if (typeof valor === "number") { dd.textContent = `${valor} ${n.unidad}`; conDatos++; }
+        else dd.textContent = "Por confirmar";
+        fila.append(dt, dd);
+        return fila;
+      })
+    );
+    document.getElementById("ficha-nota").hidden = conDatos === NUTRIENTES.length;
+    document.getElementById("ficha-fuente").hidden = conDatos === 0;
+
+    ficha.showModal();
+    if (!reducirMov) ficha.animate([{ opacity: 0, transform: "translateY(16px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 400, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+    ficha.querySelector("[data-ficha-cerrar]").focus();
+  }
+  ficha.addEventListener("click", (e) => {
+    if (e.target === ficha || e.target.closest("[data-ficha-cerrar]")) ficha.close();
+  });
+  ficha.addEventListener("close", () => { if (origenFicha && origenFicha.focus) origenFicha.focus(); });
+  document.getElementById("ficha-agregar").addEventListener("click", () => {
+    if (!platoEnFicha) return;
+    Carrito.agregar(platoEnFicha);
+    ficha.close();
+  });
+
+  /* ---------- Platos de Firestore ("Plato fijos" y "platos_exclusivos") ----------
+     Firestore manda en nombre, precio y descripción. La foto (y los datos nutricionales)
+     se toman del plato de platos.js con el nombre más parecido, para no duplicarlo. */
+  const PALABRAS_VACIAS = new Set(["con", "y", "de", "del", "al", "la", "el", "sin", "en"]);
+  const palabras = (t) => new Set(String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/).filter((w) => w && !PALABRAS_VACIAS.has(w)));
+  function parecido(a, b) {
+    const x = palabras(a), y = palabras(b);
+    const comunes = [...x].filter((w) => y.has(w)).length;
+    return comunes / (x.size + y.size - comunes || 1);
+  }
+
+  function aPlatoWeb(d, categoria, locales) {
+    let local = null, mejor = 0.5; // mínimo para considerarlos el mismo plato
+    locales.forEach((p) => { const s = parecido(d.nombre, p.nombre); if (s >= mejor) { mejor = s; local = p; } });
+    if (local) locales.splice(locales.indexOf(local), 1); // cada foto se usa una sola vez
+    const descripcion = [d.descripcion && `Incluye ${d.descripcion}.`, d.aporte && `Ideal para: ${d.aporte}.`].filter(Boolean).join(" ");
+    // Nutrición: la que guardó el propietario; si falta, la de platos.js
+    const nutricion = {};
+    ["kcal", "proteina", "carbohidratos", "grasa", "fibra"].forEach((k) => { if (typeof d[k] === "number") nutricion[k] = d[k]; });
+    return Object.assign({}, local, nutricion, {
+      id: "fs-" + d.id,
+      categoria,
+      nombre: d.nombre,
+      foto: d.foto || (local ? local.foto : ""),
+      alt: local && !d.foto ? local.alt : d.nombre,
+      descripcion: descripcion || (local ? local.descripcion : ""),
+      precio: d.precio,
+    });
+  }
+
+  async function leerColeccion(nombre) {
+    if (!window.MalhuDB) return null;
+    try { return await MalhuDB.platos(nombre); }
+    catch (e) { console.error(`No se pudo leer "${nombre}" de Firestore:`, e); return null; }
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const opciones = { alAgregar: (p) => Carrito.agregar(p), alVerInfo: verInfo };
+    const diaLocal = PLATOS.filter((p) => p.categoria === "dia");
+    const menuLocal = PLATOS.filter((p) => p.categoria === "menu");
+
+    const [dia, fijos, exclusivos] = await Promise.all([
+      leerColeccion("platos_del_dia"), leerColeccion("Plato fijos"), leerColeccion("platos_exclusivos"),
+    ]);
+
+    // Platos del día: los que publica el propietario; mientras no publique ninguno, los de platos.js
+    const platosDia = dia && dia.length ? dia.map((d) => aPlatoWeb(d, "dia", diaLocal.slice())) : diaLocal;
+    crearCarrusel(document.getElementById("carrusel-dia"), platosDia, "Platos del día", opciones);
+
+    // Menú: el de Firestore; si no se pudo leer, el de platos.js
+    const libres = menuLocal.slice();
+    const menu = fijos && fijos.length ? fijos.map((d) => aPlatoWeb(d, "menu", libres)) : menuLocal;
+    crearCarrusel(document.getElementById("carrusel-menu"), menu, "Platos del menú", opciones);
+
+    // Exclusivos: los de Firestore con sus fotos de platos.js; si no se pudo leer, los de platos.js
+    const exclusivosLocal = PLATOS.filter((p) => p.categoria === "exclusivo");
+    const listaExclusivos = exclusivos && exclusivos.length
+      ? exclusivos.map((d) => aPlatoWeb(d, "exclusivo", exclusivosLocal.slice()))
+      : exclusivosLocal;
+    if (listaExclusivos.length) {
+      document.getElementById("seccion-exclusivos").hidden = false;
+      document.getElementById("separador-exclusivos").hidden = false;
+      crearCarrusel(document.getElementById("carrusel-exclusivos"), listaExclusivos, "Platos exclusivos", opciones);
+    }
+  });
+</script>
+</body>
+</html>

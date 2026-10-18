@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es-PE" class="protegida">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Editar platos · Malhú Coffee break &amp; Catering</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+<script src="app.js"></script>
+<script src="visual.js"></script>
+<script src="platos.js"></script>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Propietario">
+    <a class="marca" href="panel-propietario.html" aria-label="Malhú, panel del propietario">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="panel-propietario.html">Panel</a></li>
+      <li><a href="plato-menu-admin.html" aria-current="page">Platos</a></li>
+      <li><a href="plato-personalizado-admin.html">Arma tu plato</a></li>
+      <li><a href="plato-menu.html" target="_blank" rel="noopener">Ver como cliente</a></li>
+    </ul>
+    <div class="acciones">
+      <span class="usuario" data-usuario></span>
+      <button class="btn btn-fantasma btn-chico" type="button" data-salir>Cerrar sesión</button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <p class="etiqueta-admin">Propietario · Platos</p>
+  <h1 class="titulo">Platos del día y menú</h1>
+  <p class="subtitulo">Lo que guardes aquí se ve al instante en "Platos del día" de la web. Cambia el precio, la foto, lo que incluye y la información nutricional.</p>
+
+  <section class="seccion-admin" aria-labelledby="t-dia" data-seccion="dia">
+    <div class="seccion-cabeza">
+      <div>
+        <h2 class="seccion-titulo" id="t-dia">Platos del día</h2>
+        <p class="seccion-nota" data-nota></p>
+      </div>
+      <button class="btn btn-primario" type="button" data-agregar>Agregar plato del día</button>
+    </div>
+    <ul class="rejilla-platos" data-lista aria-labelledby="t-dia"></ul>
+  </section>
+
+  <section class="seccion-admin" aria-labelledby="t-menu" data-seccion="menu">
+    <div class="seccion-cabeza">
+      <div>
+        <h2 class="seccion-titulo" id="t-menu">Platos del menú</h2>
+        <p class="seccion-nota" data-nota></p>
+      </div>
+      <button class="btn btn-primario" type="button" data-agregar>Agregar plato al menú</button>
+    </div>
+    <ul class="rejilla-platos" data-lista aria-labelledby="t-menu"></ul>
+  </section>
+
+  <section class="seccion-admin" aria-labelledby="t-exclusivos" data-seccion="exclusivos">
+    <div class="seccion-cabeza">
+      <div>
+        <h2 class="seccion-titulo" id="t-exclusivos">Platos exclusivos</h2>
+        <p class="seccion-nota" data-nota></p>
+      </div>
+      <button class="btn btn-primario" type="button" data-agregar>Agregar plato exclusivo</button>
+    </div>
+    <ul class="rejilla-platos" data-lista aria-labelledby="t-exclusivos"></ul>
+  </section>
+</main>
+
+<!-- Editor de un plato -->
+<dialog class="editor" id="editor" aria-labelledby="editor-titulo">
+  <form id="form-plato" novalidate>
+    <h2 id="editor-titulo">Editar plato</h2>
+    <button class="btn btn-redondo editor-cerrar" type="button" data-cerrar aria-label="Cerrar sin guardar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="campos">
+      <div class="campo-grupo ancho">
+        <label class="campo-etq" for="p-nombre">Nombre del plato</label>
+        <input class="campo" id="p-nombre" required aria-describedby="err-nombre" autocomplete="off">
+        <p class="err" id="err-nombre" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="p-precio">Precio en soles</label>
+        <input class="campo" id="p-precio" type="number" inputmode="decimal" min="0" step="0.10" aria-describedby="err-precio">
+        <p class="err" id="err-precio" hidden></p>
+      </div>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="p-aporte">Ideal para <span class="opcional">(opcional)</span></label>
+        <input class="campo" id="p-aporte" placeholder="Ej. Ganancia muscular" autocomplete="off">
+      </div>
+      <div class="campo-grupo ancho">
+        <label class="campo-etq" for="p-incluye">Qué incluye</label>
+        <textarea class="campo" id="p-incluye" rows="3" placeholder="Ej. 150 g de pollo, 150 g de arroz integral, brócoli y zanahoria"></textarea>
+      </div>
+    </div>
+
+    <fieldset class="subgrupo">
+      <legend>Foto</legend>
+      <div class="vista-foto">
+        <div class="marco" id="p-vista"></div>
+        <div class="campo-grupo">
+          <label class="campo-etq sr" for="p-foto-elegir">Elegir foto</label>
+          <select class="campo" id="p-foto-elegir"></select>
+          <label class="campo-etq sr" for="p-foto-url">Dirección de la imagen</label>
+          <input class="campo" id="p-foto-url" type="url" placeholder="https://… (dirección de una imagen)" hidden>
+          <p class="ayuda">Elige una foto del proyecto o pega la dirección de una imagen publicada.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="subgrupo">
+      <legend>Información nutricional por porción <span class="opcional">(aproximada, opcional)</span></legend>
+      <div class="campos-5">
+        <div class="campo-grupo"><label class="campo-etq" for="p-kcal">Calorías</label><input class="campo" id="p-kcal" type="number" inputmode="decimal" min="0" placeholder="kcal"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="p-proteina">Proteínas</label><input class="campo" id="p-proteina" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="p-carbohidratos">Carbohidratos</label><input class="campo" id="p-carbohidratos" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="p-grasa">Grasas</label><input class="campo" id="p-grasa" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+        <div class="campo-grupo"><label class="campo-etq" for="p-fibra">Fibra</label><input class="campo" id="p-fibra" type="number" inputmode="decimal" min="0" step="0.1" placeholder="g"></div>
+      </div>
+      <p class="ayuda">Deja vacío lo que no sepas: la web muestra "Por confirmar" en vez de inventarlo.</p>
+    </fieldset>
+
+    <p class="editor-estado" id="editor-estado" role="status"></p>
+    <div class="editor-acciones">
+      <button class="btn btn-fantasma" type="button" data-cerrar>Cancelar</button>
+      <button class="btn btn-primario" type="submit" id="p-guardar">Guardar y publicar</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+import { MalhuDB, protegerPagina, el, avisar, mensajeError, abrirEditor, prepararEditor, num, FOTOS, nombreFoto } from "./admin.js";
+
+await protegerPagina();
+
+const C = MalhuDB.COLECCIONES;
+const SECCIONES = {
+  dia: { coleccion: C.dia, categoria: "dia", nombre: "plato del día" },
+  menu: { coleccion: C.menu, categoria: "menu", nombre: "plato del menú" },
+  exclusivos: { coleccion: C.exclusivos, categoria: "exclusivo", nombre: "plato exclusivo" },
+};
+const NUTRI = ["kcal", "proteina", "carbohidratos", "grasa", "fibra"];
+const estado = { dia: [], menu: [], exclusivos: [] }; // platos mostrados por sección
+const diaSinPublicar = { valor: false }; // platos del día todavía de platos.js
+
+/* ---------- Mismo emparejamiento que plato-menu.html: foto y nutrición de platos.js ---------- */
+const VACIAS = new Set(["con", "y", "de", "del", "al", "la", "el", "sin", "en"]);
+const palabras = (t) => new Set(String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9]+/).filter((w) => w && !VACIAS.has(w)));
+function parecido(a, b) {
+  const x = palabras(a), y = palabras(b);
+  const c = [...x].filter((w) => y.has(w)).length;
+  return c / (x.size + y.size - c || 1);
+}
+function completar(d, locales) {
+  let local = null, mejor = 0.5;
+  locales.forEach((p) => { const s = parecido(d.nombre, p.nombre); if (s >= mejor) { mejor = s; local = p; } });
+  if (local) locales.splice(locales.indexOf(local), 1);
+  const r = Object.assign({}, d);
+  if (!r.foto && local) r.foto = local.foto;
+  NUTRI.forEach((k) => { if (typeof r[k] !== "number" && local && typeof local[k] === "number") r[k] = local[k]; });
+  return r;
+}
+
+/* ---------- Carga ---------- */
+async function cargar(seccion) {
+  const s = SECCIONES[seccion];
+  const locales = PLATOS.filter((p) => p.categoria === s.categoria);
+  const nodo = document.querySelector(`[data-seccion="${seccion}"]`);
+  try {
+    const remotos = await MalhuDB.platos(s.coleccion);
+    if (seccion === "dia" && !remotos.length) {
+      // Aún no hay platos del día en la base: se muestran los de platos.js y se publican al primer cambio
+      diaSinPublicar.valor = true;
+      estado.dia = locales.map((p, k) => ({ ...p, docId: null, localId: p.id, orden: k, descripcion: p.descripcion || "", aporte: "" }));
+      nodo.querySelector("[data-nota]").textContent = "Estos son los platos que la web muestra hoy. Se guardan en la base de datos con tu primer cambio.";
+    } else {
+      if (seccion === "dia") diaSinPublicar.valor = false;
+      const libres = locales.slice();
+      estado[seccion] = remotos.map((d) => completar(d, libres));
+      nodo.querySelector("[data-nota]").textContent = `${remotos.length} ${remotos.length === 1 ? "plato publicado" : "platos publicados"}.`;
+    }
+  } catch (e) {
+    estado[seccion] = [];
+    nodo.querySelector("[data-nota]").textContent = "No se pudo leer esta sección. " + mensajeError(e);
+  }
+  pintar(seccion);
+}
+
+function pintar(seccion) {
+  const lista = document.querySelector(`[data-seccion="${seccion}"] [data-lista]`);
+  lista.replaceChildren(...estado[seccion].map((p) => tarjeta(seccion, p)));
+  if (!estado[seccion].length) {
+    const li = el("li", "vacio-admin", "Aún no hay platos aquí. Usa el botón para agregar el primero.");
+    li.style.gridColumn = "1 / -1";
+    lista.append(li);
+  }
+}
+
+function tarjeta(seccion, p) {
+  const li = el("li", "plato-admin");
+  const foto = el("div", "tarjeta-foto");
+  foto.append(Visual.imagen({ ...p, tipo: "plato" }, "tarjeta", { alt: "" }));
+  if (!p.docId) foto.append(el("span", "chip-estado", "Sin publicar en la base"));
+  const cuerpo = el("div", "tarjeta-cuerpo");
+  cuerpo.append(el("h3", "tarjeta-nombre", p.nombre));
+  if (p.descripcion) cuerpo.append(el("p", "tarjeta-desc", p.descripcion));
+  const pie = el("div", "tarjeta-pie");
+  pie.append(el("p", "tarjeta-precio" + (typeof p.precio === "number" ? "" : " sin-precio"), typeof p.precio === "number" ? formatoSoles(p.precio) : "Sin precio"));
+  if (typeof p.kcal === "number") pie.append(el("span", "dato", `${p.kcal} kcal`));
+  cuerpo.append(pie);
+  const acc = el("div", "acciones-admin");
+  const editar = el("button", "btn btn-primario", "Editar");
+  editar.type = "button";
+  editar.setAttribute("aria-label", `Editar ${p.nombre}`);
+  editar.addEventListener("click", () => abrir(seccion, p, editar));
+  const quitar = el("button", "btn btn-peligro", "Quitar");
+  quitar.type = "button";
+  quitar.setAttribute("aria-label", `Quitar ${p.nombre}`);
+  quitar.addEventListener("click", () => eliminar(seccion, p, quitar));
+  acc.append(editar, quitar);
+  cuerpo.append(acc);
+  li.append(foto, cuerpo);
+  return li;
+}
+
+/* ---------- Platos del día: primera publicación ---------- */
+/** Guarda en Firestore los platos del día de platos.js (menos `excepto`) y devuelve localId → docId. */
+async function publicarDia(excepto) {
+  const ids = {};
+  for (const p of estado.dia) {
+    if (p.docId || p.localId === excepto) continue;
+    ids[p.localId] = await MalhuDB.guardarPlato(C.dia, null, p);
+  }
+  diaSinPublicar.valor = false;
+  return ids;
+}
+
+/* ---------- Editor ---------- */
+const dlg = document.getElementById("editor");
+const form = document.getElementById("form-plato");
+const $ = (s) => form.querySelector(s);
+prepararEditor(dlg);
+let editando = null; // { seccion, plato }
+
+const selFoto = $("#p-foto-elegir");
+selFoto.append(new Option("Sin foto (se ve una ficha con el emoji)", ""));
+FOTOS.forEach((g) => {
+  const og = document.createElement("optgroup");
+  og.label = g.grupo;
+  g.rutas.forEach((r) => og.append(new Option(nombreFoto(r), r)));
+  selFoto.append(og);
+});
+selFoto.append(new Option("Otra imagen (pegar dirección)…", "__url"));
+
+function fotoElegida() {
+  return selFoto.value === "__url" ? $("#p-foto-url").value.trim() : selFoto.value;
+}
+function pintarVista() {
+  $("#p-foto-url").hidden = selFoto.value !== "__url";
+  const marco = $("#p-vista");
+  marco.replaceChildren(Visual.imagen({ foto: fotoElegida(), nombre: $("#p-nombre").value, tipo: "plato" }, "tarjeta", { alt: "" }));
+}
+selFoto.addEventListener("change", () => { pintarVista(); if (selFoto.value === "__url") $("#p-foto-url").focus(); });
+$("#p-foto-url").addEventListener("change", pintarVista);
+
+function abrir(seccion, p, origen) {
+  editando = { seccion, plato: p };
+  $("#editor-titulo").textContent = p ? `Editar ${p.nombre}` : `Agregar ${SECCIONES[seccion].nombre}`;
+  $("#p-nombre").value = p ? p.nombre : "";
+  $("#p-precio").value = p && typeof p.precio === "number" ? p.precio : "";
+  $("#p-aporte").value = p ? p.aporte || "" : "";
+  $("#p-incluye").value = p ? p.descripcion || "" : "";
+  NUTRI.forEach((k) => ($(`#p-${k}`).value = p && typeof p[k] === "number" ? p[k] : ""));
+  const foto = p ? p.foto || "" : "";
+  const conocida = FOTOS.some((g) => g.rutas.includes(foto));
+  selFoto.value = !foto ? "" : conocida ? foto : "__url";
+  $("#p-foto-url").value = conocida ? "" : foto;
+  form.querySelectorAll(".err").forEach((e) => (e.hidden = true));
+  form.querySelectorAll("[aria-invalid]").forEach((e) => e.removeAttribute("aria-invalid"));
+  $("#editor-estado").textContent = "";
+  $("#editor-estado").classList.remove("error");
+  $("#p-guardar").disabled = false;
+  pintarVista();
+  abrirEditor(dlg, origen);
+}
+
+function error(id, msg) {
+  const p = $("#err-" + id);
+  p.textContent = msg;
+  p.hidden = !msg;
+  $("#p-" + id).setAttribute("aria-invalid", String(!!msg));
+  return !!msg;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nombre = $("#p-nombre").value.trim();
+  const precio = num($("#p-precio").value);
+  const malNombre = error("nombre", nombre ? "" : "Escribe el nombre del plato.");
+  const malPrecio = error("precio", Number.isNaN(precio) || (precio !== null && precio < 0) ? "Escribe un precio válido (ej. 14.50)." : "");
+  if (malNombre || malPrecio) { $(malNombre ? "#p-nombre" : "#p-precio").focus(); return; }
+  const datos = {
+    nombre, precio,
+    aporte: $("#p-aporte").value.trim(),
+    descripcion: $("#p-incluye").value.trim(),
+    foto: fotoElegida(),
+  };
+  for (const k of NUTRI) {
+    const v = num($(`#p-${k}`).value);
+    if (Number.isNaN(v) || (v !== null && v < 0)) { avisar("Revisa la información nutricional: solo números.", true); $(`#p-${k}`).focus(); return; }
+    datos[k] = v;
+  }
+  const { seccion, plato } = editando;
+  const s = SECCIONES[seccion];
+  $("#p-guardar").disabled = true;
+  $("#editor-estado").textContent = "Guardando…";
+  try {
+    if (seccion === "dia" && diaSinPublicar.valor) await publicarDia(plato && plato.localId);
+    if (seccion === "dia") datos.orden = plato && typeof plato.orden === "number" ? plato.orden : estado.dia.length;
+    await MalhuDB.guardarPlato(s.coleccion, plato && plato.docId, datos);
+    dlg.close();
+    avisar(`${nombre} guardado. Ya se ve en la web.`);
+    await cargar(seccion);
+  } catch (er) {
+    $("#editor-estado").textContent = mensajeError(er);
+    $("#editor-estado").classList.add("error");
+    $("#p-guardar").disabled = false;
+  }
+});
+
+async function eliminar(seccion, p, boton) {
+  if (!confirm(`¿Quitar "${p.nombre}" de la web? Esta acción no se puede deshacer.`)) return;
+  boton.disabled = true;
+  try {
+    if (seccion === "dia" && diaSinPublicar.valor) await publicarDia(p.localId);
+    else await MalhuDB.borrar(SECCIONES[seccion].coleccion, p.docId);
+    avisar(`${p.nombre} se quitó de la web.`);
+    await cargar(seccion);
+  } catch (er) {
+    boton.disabled = false;
+    avisar(mensajeError(er), true);
+  }
+}
+
+document.querySelectorAll("[data-seccion]").forEach((nodo) =>
+  nodo.querySelector("[data-agregar]").addEventListener("click", (e) => abrir(nodo.dataset.seccion, null, e.currentTarget))
+);
+
+await Promise.all(Object.keys(SECCIONES).map(cargar));
+</script>
+</body>
+</html>

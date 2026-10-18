@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Malhú · Coffee break &amp; Catering</title>
+<meta name="description" content="Coffee break y catering para eventos, platos del día y platos personalizados hechos al momento. Cotiza por WhatsApp.">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500&display=swap" rel="stylesheet">
+<!-- La primera portada es la imagen más grande del primer pantallazo: se pide antes que nada -->
+<link rel="preload" as="image" href="Slide%20Shows/Portada/Catering.jpg" fetchpriority="high">
+<script>
+  /* Antes del primer pintado: activa los estilos con JS y decide si se muestra el telón de marca
+     (una vez por sesión; nunca con movimiento reducido; se salta con ?sin-intro). */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add("js");
+    try {
+      var reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reducir && !/[?&]sin-intro/.test(location.search) && !sessionStorage.getItem("malhu-intro")) d.classList.add("intro");
+      if (localStorage.getItem("malhu-pausa") === "1") d.classList.add("quieto");
+    } catch (e) {}
+    // Falla segura: si el JS no arranca en 3 s, todo queda visible
+    setTimeout(function () { if (!window.__malhuListo) d.classList.remove("js", "intro"); }, 3000);
+  })();
+</script>
+<style>
+/* ===== Tokens (mismo sistema que la landing: DESIGN.md) ===== */
+:root {
+  --carbon: #0f0d0c;
+  --carbon-2: #1c1815;
+  --linea: #3a3129;
+  --crema: #f5ebdd;
+  --crema-2: #c9bba8;
+  --crema-3: #968877;
+  --azafran: #f28c28;
+  --azafran-hover: #ffa041;
+  --bosque: #395941;
+  --verde: #7bc67e;
+  --tomate: #e8583a;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --d1: 180ms;
+  --d2: 600ms;
+  --d3: 1000ms;
+  --gutter: clamp(16px, 4vw, 56px);
+  --nav-h: 76px;
+  --f-display: "Gloock", Georgia, "Times New Roman", serif;
+  --f-texto: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-dato: "Spline Sans Mono", ui-monospace, "Cascadia Mono", monospace;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--carbon); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--carbon);
+  color: var(--crema);
+  font: 400 1rem/1.6 var(--f-texto);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+::selection { background: var(--azafran); color: var(--carbon); }
+a { color: inherit; text-underline-offset: .2em; }
+img { display: block; max-width: 100%; -webkit-user-drag: none; }
+:focus-visible { outline: 2px solid var(--azafran); outline-offset: 3px; border-radius: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.saltar { position: fixed; left: 16px; top: 16px; z-index: 300; transform: translateY(-200%); }
+.saltar:focus-visible { transform: none; }
+
+/* ===== Botones ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  height: 52px; padding: 0 26px; border-radius: 999px; border: 0;
+  font: 600 1rem/1 var(--f-texto); text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: transform var(--d1) var(--ease), background-color var(--d1) var(--ease), border-color var(--d1) var(--ease), color var(--d1) var(--ease);
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.btn:active { transform: scale(.97); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn .flecha { transition: transform var(--d1) var(--ease); }
+.btn-primario { background: var(--azafran); color: var(--carbon); }
+.btn-fantasma { color: var(--crema); background: transparent; box-shadow: inset 0 0 0 1px rgb(245 235 221 / .3); }
+.btn-redondo { width: 48px; height: 48px; padding: 0; color: var(--crema); background: transparent; box-shadow: inset 0 0 0 1px rgb(245 235 221 / .3); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primario:hover { background: var(--azafran-hover); }
+  .btn-fantasma:hover, .btn-redondo:hover { box-shadow: inset 0 0 0 1px var(--crema); }
+  .btn:hover .flecha { transform: translateX(4px); }
+}
+
+/* ===== Telón de marca ===== */
+.telon { display: none; position: fixed; inset: 0; z-index: 200; background: var(--bosque); align-items: center; justify-content: center; }
+html.intro .telon { display: flex; }
+html.intro body { overflow: hidden; }
+.telon-logo { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 28px); }
+.telon-logo img { height: clamp(90px, 15vw, 166px); width: auto; opacity: 0; }
+
+/* ===== Cabecera ===== */
+.cabecera { position: fixed; inset: 0 0 auto; z-index: 50; }
+.cabecera::before { content: ""; position: absolute; inset: 0; background: rgb(28 24 21 / .94); border-bottom: 1px solid var(--linea); opacity: 0; transition: opacity var(--d2) var(--ease); }
+.cabecera.solida::before { opacity: 1; }
+.cabecera-in { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; height: var(--nav-h); padding: 0 var(--gutter); max-width: 1440px; margin: 0 auto; }
+.marca img { height: 46px; width: auto; }
+.menu { display: flex; gap: 32px; list-style: none; margin: 0; padding: 0; }
+.menu a { position: relative; text-decoration: none; color: var(--crema-2); font-weight: 500; font-size: .9375rem; transition: color var(--d1) var(--ease); }
+.menu a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform var(--d1) var(--ease); }
+@media (hover: hover) and (pointer: fine) { .menu a:hover { color: var(--crema); } .menu a:hover::after { transform: scaleX(1); } }
+.acciones { display: flex; align-items: center; gap: 8px; }
+.pausa { height: 40px; padding: 0 12px; gap: 8px; font-size: .875rem; font-weight: 500; color: var(--crema-2); background: transparent; }
+.pausa .ico-play { display: none; }
+html.quieto .pausa .ico-play { display: block; }
+html.quieto .pausa .ico-pausa { display: none; }
+@media (max-width: 1023px) { .menu { display: none; } }
+@media (max-width: 1279px) { .pausa .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+@media (max-width: 639px) {
+  .cabecera .btn-primario .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cabecera .btn-primario { width: 44px; height: 44px; padding: 0; }
+  .marca img { height: 40px; }
+}
+
+/* ===== Carrusel de inicio ===== */
+.inicio { position: relative; isolation: isolate; overflow: clip; }
+.brillo { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity var(--d3) var(--ease); }
+.brillo.activo { opacity: 1; }
+.escenario { position: relative; }
+.opcion { position: relative; min-height: 100svh; }
+html.js .escenario { height: 100svh; min-height: 640px; }
+html.js .opcion { position: absolute; inset: 0; min-height: 0; visibility: hidden; opacity: 0; }
+html.js .opcion.activa, html.js .opcion.saliendo { visibility: visible; opacity: 1; }
+/* Antes de la entrada, el titular espera bajo su máscara (sin destello) */
+html.js .inicio:not(.listo) .opcion.activa .linea > span { transform: translateY(110%); }
+.opcion-in {
+  position: relative; height: 100%; max-width: 1440px; margin: 0 auto;
+  padding: calc(var(--nav-h) + 12px) var(--gutter) 112px;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; gap: 0;
+}
+/* La foto: ocupa la derecha y se funde con el fondo por los bordes */
+.foto {
+  grid-column: 1 / -1; grid-row: 1; justify-self: end; align-self: center;
+  width: min(68vw, 1100px); position: relative; z-index: 1;
+  /* Dos degradados cruzados: la foto se funde con el fondo por los cuatro bordes */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 86%, transparent), linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to right, transparent, #000 22%, #000 86%, transparent), linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+          mask-composite: intersect;
+}
+.foto-flota { will-change: transform; }
+.foto img { width: 100%; height: auto; aspect-ratio: 1024 / 560; object-fit: cover; }
+html.js:not(.quieto) .opcion.activa .foto-flota { animation: flotar 9s ease-in-out infinite; }
+@keyframes flotar {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -12px, 0) rotate(-.6deg); }
+}
+.texto { grid-column: 1; grid-row: 1; position: relative; z-index: 2; align-self: center; padding-bottom: 2vh; }
+.titular { margin: 0; font: 400 clamp(3rem, 5.4vw + .5rem, 6.5rem)/.92 var(--f-display); letter-spacing: -.02em; text-wrap: balance; }
+.linea { display: block; overflow: clip; padding-bottom: .1em; margin-bottom: -.1em; }
+.linea > span { display: block; }
+/* Escritorio: cada línea del titular se mantiene entera y puede pasar sobre el borde difuminado de la foto */
+@media (min-width: 900px) { .linea { white-space: nowrap; } }
+.bajada { margin: 24px 0 0; max-width: 32ch; font-size: clamp(1.0625rem, .5vw + 1rem, 1.375rem); line-height: 1.45; font-weight: 500; color: var(--crema-2); text-wrap: pretty; }
+.botones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.dato { font: 500 .8125rem/1.3 var(--f-dato); letter-spacing: .04em; }
+
+/* Controles del carrusel */
+.controles { position: absolute; inset: auto 0 0; z-index: 5; }
+.controles-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1440px; margin: 0 auto; padding: 0 var(--gutter) 28px; }
+.pestanas { display: flex; gap: 28px; }
+.pestana { position: relative; height: 44px; padding: 0; border: 0; background: none; color: var(--crema-3); font: 500 .9375rem var(--f-texto); cursor: pointer; transition: color var(--d1) var(--ease); }
+.pestana[aria-current="true"] { color: var(--crema); }
+@media (hover: hover) and (pointer: fine) { .pestana:hover { color: var(--crema-2); } }
+.pestana .pista { position: absolute; left: 0; right: 0; bottom: 4px; height: 1px; background: var(--linea); overflow: hidden; }
+.pestana .barra { position: absolute; inset: 0; transform: scaleX(0); transform-origin: left; background: var(--color, var(--azafran)); }
+.contador { color: var(--crema-3); margin-right: 8px; }
+.contador b { color: var(--crema); font-weight: 500; }
+.flechas { display: flex; align-items: center; gap: 10px; }
+html:not(.js) .controles, html:not(.js) .brillo:not(:first-child) { display: none; }
+html:not(.js) .brillo:first-child { opacity: 1; }
+
+/* Entrada al cargar y cambios de opción: solo transform y opacity */
+html.js .inicio .entra { opacity: 0; transform: translateY(16px); }
+html.js .inicio.listo .entra { opacity: 1; transform: none; transition: opacity var(--d2) var(--ease), transform var(--d2) var(--ease); }
+html.js .inicio.listo .entra:nth-child(2) { transition-delay: 100ms; }
+
+/* ===== Cómo pedir ===== */
+.pasos { max-width: 1440px; margin: 0 auto; padding: clamp(96px, 14vh, 160px) var(--gutter); }
+.pasos h2 { margin: 0; max-width: 16ch; font: 400 clamp(2.5rem, 4.6vw + .5rem, 5.5rem)/.95 var(--f-display); letter-spacing: -.015em; text-wrap: balance; }
+.pasos ol { list-style: none; margin: 64px 0 0; padding: 0; display: grid; gap: 40px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); position: relative; }
+.pasos li { position: relative; }
+.pasos .num { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(245 235 221 / .3); color: var(--azafran); background: var(--carbon); }
+.pasos h3 { margin: 22px 0 0; font: 400 clamp(1.5rem, 1.4vw + 1rem, 2.125rem)/1.05 var(--f-display); }
+.pasos p { margin: 10px 0 0; max-width: 30ch; color: var(--crema-2); }
+.pasos-cta { margin-top: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding-top: 32px; border-top: 1px solid var(--linea); }
+.pasos-cta p { margin: 0; color: var(--crema-2); max-width: 46ch; }
+
+/* ===== Pie ===== */
+.pie { background: var(--bosque); color: var(--crema); overflow: hidden; }
+.pie-in { max-width: 1440px; margin: 0 auto; padding: 72px var(--gutter) 28px; display: grid; gap: 40px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.pie h2 { margin: 0 0 12px; font: 500 .8125rem/1.3 var(--f-dato); letter-spacing: .08em; text-transform: uppercase; color: #d8e3d4; }
+.pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pie a { text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .pie a:hover { text-decoration: underline; } }
+.pie .logo img { height: 64px; width: auto; }
+.pie-legal { max-width: 1440px; margin: 0 auto; padding: 20px var(--gutter) 28px; border-top: 1px solid rgb(216 227 212 / .2); color: #d8e3d4; font-size: .875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+/* ===== Móvil ===== */
+@media (max-width: 899px) {
+  .opcion-in { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: center; padding-bottom: 100px; }
+  .foto { grid-column: 1; grid-row: 1; justify-self: center; width: min(124vw, 680px); margin: 0 -12vw; }
+  .texto { grid-row: 2; margin-top: -4vh; }
+  .titular { font-size: clamp(2.75rem, 12vw, 4.5rem); }
+  .bajada { margin-top: 16px; }
+  .botones { margin-top: 20px; }
+  .pestanas { gap: 18px; }
+  .contador { display: none; }
+}
+@media (max-width: 899px) and (max-height: 700px) { .bajada { display: none; } }
+
+/* ===== Movimiento reducido ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0ms !important; }
+  html.js .inicio .linea > span { transform: none !important; }
+  .pausa { display: none; }
+}
+</style>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- Telón de marca: verde bosque con el logo (solo existe con html.intro) -->
+<div class="telon" aria-hidden="true">
+  <div class="telon-logo">
+    <img data-telon="emblema" src="assets/img/logo-malhu-emblema.png" alt="" width="123" height="166">
+    <img data-telon="texto" src="assets/img/logo-malhu-texto.png" alt="" width="337" height="166">
+  </div>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Principal">
+    <a class="marca" href="index.html" aria-label="Malhú, inicio">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="catering.html">Catering</a></li>
+      <li><a href="plato-menu.html">Platos del día</a></li>
+      <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+    </ul>
+    <div class="acciones">
+      <button class="btn pausa" type="button" id="pausa" aria-pressed="false">
+        <svg class="ico-pausa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>
+        <span class="txt" id="pausa-txt">Pausar animaciones</span>
+      </button>
+      <a class="btn btn-primario" data-wa href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg>
+        <span class="txt">Cotizar por WhatsApp</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido">
+  <section class="inicio" id="inicio" aria-roledescription="carrusel" aria-label="Lo que prepara Malhú">
+    <h1 class="sr">Malhú Coffee break &amp; Catering: catering para eventos, platos del día y platos a tu gusto</h1>
+
+    <div class="brillo" data-brillo style="background: radial-gradient(46% 52% at 62% 50%, rgb(242 140 40 / .26), rgb(242 140 40 / .07) 55%, transparent 76%)"></div>
+    <div class="brillo" data-brillo style="background: radial-gradient(46% 52% at 62% 50%, rgb(123 198 126 / .22), rgb(123 198 126 / .06) 55%, transparent 76%)"></div>
+    <div class="brillo" data-brillo style="background: radial-gradient(46% 52% at 62% 50%, rgb(232 88 58 / .24), rgb(232 88 58 / .07) 55%, transparent 76%)"></div>
+
+    <div class="escenario" id="escenario">
+      <!-- 1 · Catering -->
+      <article class="opcion activa" role="group" aria-roledescription="opción" aria-label="1 de 3: Catering">
+        <div class="opcion-in">
+          <div class="foto"><div class="foto-flota" data-foto>
+            <img src="Slide%20Shows/Portada/Catering.jpg" alt="Bocaditos dulces y salados flotando junto a dos anillos de boda sobre fondo oscuro" width="1024" height="559" fetchpriority="high" decoding="async">
+          </div></div>
+          <div class="texto">
+            <h2 class="titular"><span class="linea"><span>Catering</span></span><span class="linea"><span>para tu evento</span></span></h2>
+            <p class="bajada entra">Bocaditos, coffee break y menús completos para matrimonios, cumpleaños y reuniones de empresa. Llegamos puntuales y dejamos la mesa armada.</p>
+            <div class="botones entra">
+              <a class="btn btn-primario" href="catering.html">Ver catering
+                <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn-fantasma" data-wa="Hola Malhú, quiero cotizar un catering para mi evento." href="#" target="_blank" rel="noopener">Cotizar</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 2 · Platos del día -->
+      <article class="opcion" role="group" aria-roledescription="opción" aria-label="2 de 3: Platos del día">
+        <div class="opcion-in">
+          <div class="foto"><div class="foto-flota" data-foto>
+            <img src="Slide%20Shows/Portada/Platos%20x%20men%C3%BA.jpg" alt="Tres platos: bowl de quinua con garbanzos y palta, salmón con espárragos y guiso de lentejas con arroz" width="1024" height="559" decoding="async">
+          </div></div>
+          <div class="texto">
+            <h2 class="titular"><span class="linea"><span>Platos</span></span><span class="linea"><span>del día</span></span></h2>
+            <p class="bajada entra">Comida casera y fitness con ingredientes frescos: salmón, quinua, pollo a la plancha y verduras de estación. Elige y pide al instante.</p>
+            <div class="botones entra">
+              <a class="btn btn-primario" href="plato-menu.html">Ver el menú
+                <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn-fantasma" data-wa="Hola Malhú, quiero pedir del menú del día." href="#" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3 · Platos personalizados -->
+      <article class="opcion" role="group" aria-roledescription="opción" aria-label="3 de 3: Arma tu plato">
+        <div class="opcion-in">
+          <div class="foto"><div class="foto-flota" data-foto>
+            <img src="Slide%20Shows/Portada/Personaliza.jpg" alt="Bowl de ensalada con palta, tomate, pepino y brócoli, con los ingredientes cayendo desde arriba" width="1024" height="572" decoding="async">
+          </div></div>
+          <div class="texto">
+            <h2 class="titular"><span class="linea"><span>Tu plato,</span></span><span class="linea"><span>a tu gusto</span></span></h2>
+            <p class="bajada entra">Elige la base, la proteína y los complementos. Lo preparamos al momento, como lo pediste.</p>
+            <div class="botones entra">
+              <a class="btn btn-primario" href="plato-personalizado.html">Armar mi plato
+                <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="controles">
+      <div class="controles-in">
+        <div class="pestanas" role="group" aria-label="Elegir opción">
+          <button class="pestana" type="button" style="--color: var(--azafran)">Catering<span class="pista" aria-hidden="true"><span class="barra"></span></span></button>
+          <button class="pestana" type="button" style="--color: var(--verde)">Platos del día<span class="pista" aria-hidden="true"><span class="barra"></span></span></button>
+          <button class="pestana" type="button" style="--color: var(--tomate)">Arma tu plato<span class="pista" aria-hidden="true"><span class="barra"></span></span></button>
+        </div>
+        <div class="flechas">
+          <p class="contador dato" aria-hidden="true"><b id="contador">01</b> / 03</p>
+          <button class="btn btn-redondo" type="button" id="anterior" aria-label="Opción anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="btn btn-redondo" type="button" id="siguiente" aria-label="Opción siguiente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="sr" id="anuncio" aria-live="polite"></p>
+  </section>
+
+  <section class="pasos" aria-labelledby="pasos-titulo">
+    <h2 id="pasos-titulo">Pedir es así de simple.</h2>
+    <ol>
+      <li><span class="num dato">1</span><h3>Elige</h3><p>Catering, un plato del día o arma el tuyo con lo que más te gusta.</p></li>
+      <li><span class="num dato">2</span><h3>Confirma</h3><p>Revisa tu pedido y el precio antes de enviarlo. Sin sorpresas.</p></li>
+      <li><span class="num dato">3</span><h3>Lo preparamos</h3><p>Cocinamos al momento y coordinamos la entrega contigo por WhatsApp.</p></li>
+    </ol>
+    <div class="pasos-cta">
+      <p>¿Tienes un evento grande o una idea especial? Escríbenos y armamos la propuesta contigo.</p>
+      <a class="btn btn-primario" data-wa="Hola Malhú, tengo un evento y quiero una propuesta." href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg>
+        Escribir por WhatsApp
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="pie-in">
+    <div class="logo"><img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166" loading="lazy"></div>
+    <nav aria-label="Secciones">
+      <h2>Pide</h2>
+      <ul>
+        <li><a href="catering.html">Catering para eventos</a></li>
+        <li><a href="plato-menu.html">Platos del día</a></li>
+        <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Contacto</h2>
+      <ul>
+        <li><a data-wa href="#" target="_blank" rel="noopener">WhatsApp</a></li>
+        <li><a href="principal.html">Acceso propietario</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie-legal"><p style="margin:0">© <span id="anio">2026</span> Malhú Coffee break &amp; Catering</p><p style="margin:0">Pedidos y cotizaciones por WhatsApp.</p></div>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN: cambia aquí tu número (código de país + número, sin + ni espacios)
+   ============================================================ */
+const MALHU = {
+  whatsapp: "51906517929",
+  mensajeGeneral: "Hola Malhú, quiero hacer un pedido.",
+  segundosPorOpcion: 7,
+};
+
+(function () {
+  const html = document.documentElement;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
+  const D1 = 180, D2 = 600, D3 = 1000;
+  const reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pausado = () => html.classList.contains("quieto");
+
+  // ---- Enlaces de WhatsApp con mensaje ya redactado ----
+  const wa = (texto) => `https://wa.me/${MALHU.whatsapp}?text=${encodeURIComponent(texto)}`;
+  $$("[data-wa]").forEach((a) => (a.href = wa(a.dataset.wa || MALHU.mensajeGeneral)));
+  $("#anio").textContent = new Date().getFullYear();
+
+  // ---- Cabecera: fondo sólido al bajar ----
+  const cab = $("#cabecera");
+  const alScroll = () => cab.classList.toggle("solida", scrollY > 40);
+  addEventListener("scroll", alScroll, { passive: true });
+  alScroll();
+
+  // ---- Botón "Pausar animaciones" (se recuerda) ----
+  const botonPausa = $("#pausa");
+  const pintarPausa = () => {
+    botonPausa.setAttribute("aria-pressed", String(pausado()));
+    $("#pausa-txt").textContent = pausado() ? "Reanudar animaciones" : "Pausar animaciones";
+  };
+  botonPausa.addEventListener("click", () => {
+    html.classList.toggle("quieto");
+    try { localStorage.setItem("malhu-pausa", pausado() ? "1" : "0"); } catch (e) {}
+    pintarPausa();
+    sincronizar();
+  });
+  pintarPausa();
+
+  // ---- Carrusel ----
+  const seccion = $("#inicio");
+  const opciones = $$(".opcion");
+  const brillos = $$("[data-brillo]");
+  const pestanas = $$(".pestana");
+  const nombres = ["Catering", "Platos del día", "Arma tu plato"];
+  const n = opciones.length;
+  let actual = 0;
+  let animando = false;
+  let progreso = null;
+  let visible = true, encima = false, foco = false;
+
+  const partes = (o) => ({
+    lineas: $$(".linea > span", o),
+    foto: $(".foto", o),
+    entra: $$(".entra", o),
+  });
+
+  function marcar() {
+    opciones.forEach((o, i) => {
+      const activa = i === actual;
+      o.classList.toggle("activa", activa);
+      o.inert = !activa;
+      if (activa) o.removeAttribute("aria-hidden"); else o.setAttribute("aria-hidden", "true");
+    });
+    brillos.forEach((b, i) => b.classList.toggle("activo", i === actual));
+    pestanas.forEach((p, i) => p.setAttribute("aria-current", String(i === actual)));
+    $("#contador").textContent = String(actual + 1).padStart(2, "0");
+  }
+
+  const anim = (el, frames, ms, delay = 0) =>
+    el.animate(frames, { duration: ms, delay, easing: EASE, fill: "both" });
+
+  function ir(i, dir, manual) {
+    const sig = (i + n) % n;
+    if (sig === actual || animando) return;
+    const sale = opciones[actual], entra = opciones[sig];
+    const ps = partes(sale), pe = partes(entra);
+    actual = sig;
+    if (manual) $("#anuncio").textContent = `${nombres[sig]}, ${sig + 1} de ${n}`;
+
+    if (reducir) { marcar(); arrancarProgreso(); return; }
+
+    animando = true;
+    // La que entra se hace visible (la que sale sigue visible mientras se va)
+    sale.classList.add("saliendo");
+    entra.style.zIndex = 2; sale.style.zIndex = 1;
+    // Salida: el titular sube por su máscara, la foto se aleja girando hacia un lado
+    ps.lineas.forEach((l, k) => anim(l, [{ transform: "translateY(0)" }, { transform: "translateY(-110%)" }], D2, k * 80));
+    ps.entra.forEach((e) => anim(e, [{ opacity: 1 }, { opacity: 0 }], D1 * 2));
+    anim(ps.foto, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-dir * 14}%) rotate(${-dir * 8}deg) scale(.86)` }], D3);
+    // Entrada: la foto llega desde el otro lado, luego el titular y el texto
+    anim(pe.foto, [{ opacity: 0, transform: `translateX(${dir * 16}%) rotate(${dir * 8}deg) scale(.86)` }, { opacity: 1, transform: "none" }], D3, 80);
+    pe.lineas.forEach((l, k) => anim(l, [{ transform: "translateY(110%)" }, { transform: "translateY(0)" }], D2, 250 + k * 80));
+    pe.entra.forEach((e, k) => anim(e, [{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], D2, 420 + k * 100));
+    marcar();
+    setTimeout(() => {
+      animando = false;
+      sale.classList.remove("saliendo");
+      entra.style.zIndex = sale.style.zIndex = "";
+      // limpiar estados finales de la que salió para que vuelva intacta
+      [...ps.lineas, ...ps.entra, ps.foto].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+      [...pe.lineas, ...pe.entra, pe.foto].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+    }, D3 + 450);
+    arrancarProgreso();
+  }
+
+  // Barra de progreso y avance automático (movimiento constante → lineal)
+  function arrancarProgreso() {
+    if (progreso) progreso.cancel();
+    $$(".barra").forEach((b) => (b.style.transform = "scaleX(0)"));
+    if (reducir || MALHU.segundosPorOpcion <= 0) return;
+    const barra = $(".barra", pestanas[actual]);
+    progreso = barra.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
+      duration: MALHU.segundosPorOpcion * 1000, easing: "linear", fill: "forwards",
+    });
+    progreso.onfinish = () => ir(actual + 1, 1, false);
+    sincronizar();
+  }
+  function sincronizar() {
+    if (!progreso) return;
+    const avanza = !pausado() && visible && !encima && !foco && !document.hidden;
+    avanza ? progreso.play() : progreso.pause();
+  }
+
+  // Controles
+  $("#siguiente").addEventListener("click", () => ir(actual + 1, 1, true));
+  $("#anterior").addEventListener("click", () => ir(actual - 1, -1, true));
+  pestanas.forEach((p, i) => p.addEventListener("click", () => ir(i, i > actual ? 1 : -1, true)));
+  seccion.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") ir(actual + 1, 1, true);
+    if (e.key === "ArrowLeft") ir(actual - 1, -1, true);
+  });
+
+  // Deslizar con el dedo o arrastrar con el mouse
+  let x0 = null, t0 = 0;
+  const escenario = $("#escenario");
+  escenario.addEventListener("pointerdown", (e) => { if (!e.target.closest("a,button")) { x0 = e.clientX; t0 = performance.now(); } });
+  addEventListener("pointerup", (e) => {
+    if (x0 === null) return;
+    const dx = e.clientX - x0, v = Math.abs(dx) / Math.max(1, performance.now() - t0);
+    if (Math.abs(dx) > 60 || (v > 0.5 && Math.abs(dx) > 20)) ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1, true);
+    x0 = null;
+  });
+
+  // Pausas: mouse encima, foco dentro, fuera de pantalla, pestaña oculta
+  seccion.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { encima = true; sincronizar(); } });
+  seccion.addEventListener("pointerleave", () => { encima = false; sincronizar(); });
+  seccion.addEventListener("focusin", () => { foco = true; sincronizar(); });
+  seccion.addEventListener("focusout", (e) => { if (!seccion.contains(e.relatedTarget)) { foco = false; sincronizar(); } });
+  document.addEventListener("visibilitychange", sincronizar);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; sincronizar(); }).observe(seccion);
+
+  // Antigravedad: la foto activa sigue un poco al cursor (con inercia)
+  if (!reducir && matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    let mx = 0, my = 0, x = 0, y = 0, raf = 0;
+    const paso = () => {
+      x += (mx - x) * 0.08; y += (my - y) * 0.08;
+      const f = $("[data-foto]", opciones[actual]);
+      if (f && !pausado()) f.parentElement.style.translate = `${x.toFixed(2)}px ${y.toFixed(2)}px`;
+      raf = Math.abs(mx - x) + Math.abs(my - y) > 0.1 ? requestAnimationFrame(paso) : 0;
+    };
+    seccion.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      mx = (e.clientX / innerWidth - 0.5) * 28;
+      my = (e.clientY / innerHeight - 0.5) * 18;
+      if (!raf) raf = requestAnimationFrame(paso);
+    });
+  }
+
+  // ---- Arranque: telón de marca y entrada del primer pantallazo ----
+  marcar();
+  window.__malhuListo = true;
+  const iniciar = () => {
+    seccion.classList.add("listo");
+    if (!reducir) partes(opciones[0]).lineas.forEach((l, k) => anim(l, [{ transform: "translateY(110%)" }, { transform: "translateY(0)" }], D2, 80 + k * 80));
+    arrancarProgreso();
+  };
+
+  if (html.classList.contains("intro")) {
+    const telon = $(".telon");
+    const [emblema, texto] = [$('[data-telon="emblema"]'), $('[data-telon="texto"]')];
+    anim(emblema, [{ opacity: 0, transform: "scale(.94)" }, { opacity: 1, transform: "scale(1)" }], D2, 100);
+    anim(texto, [{ opacity: 0, transform: "translateX(-16px)" }, { opacity: 1, transform: "none" }], D2, 250);
+    let cerrado = false;
+    const cerrar = () => {
+      if (cerrado) return;
+      cerrado = true;
+      removeEventListener("pointerdown", cerrar);
+      removeEventListener("keydown", cerrar);
+      const sube = anim(telon, [{ transform: "translateY(0)" }, { transform: "translateY(-100%)" }], D3);
+      setTimeout(iniciar, 250);
+      sube.onfinish = () => {
+        html.classList.remove("intro");
+        try { sessionStorage.setItem("malhu-intro", "1"); } catch (e) {}
+      };
+    };
+    setTimeout(cerrar, 1050);
+    addEventListener("pointerdown", cerrar);
+    addEventListener("keydown", cerrar);
+  } else {
+    iniciar();
+  }
+})();
+</script>
+</body>
+</html>

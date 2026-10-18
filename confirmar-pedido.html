@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confirmación de datos · Malhú Coffee break &amp; Catering</title>
+<meta name="description" content="Confirma tus datos, elige cómo pagas y dónde recoges tu pedido de Malhú.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js"></script>
+<script src="visual.js"></script>
+<script src="carrito.js"></script>
+<script src="pedido.js"></script>
+<script src="detalle-pedido.js"></script>
+<script type="module" src="firebase.js"></script>
+<style>
+/* ===== Solo de esta página ===== */
+.pagina { max-width: 1200px; margin: 0 auto; padding: calc(var(--nav-h) + clamp(28px, 5vh, 56px)) var(--gutter) clamp(72px, 10vh, 120px); }
+.titulo { margin: 0; font: 400 clamp(2.5rem, 4.5vw + .5rem, 4.5rem)/.95 var(--f-display); letter-spacing: -.015em; }
+.titulo:focus { outline: none; }
+.subtitulo { margin: 14px 0 0; max-width: 56ch; color: var(--crema-2); font-size: clamp(1.0625rem, .4vw + 1rem, 1.1875rem); }
+.bloque { background: rgb(28 24 21 / .86); border-radius: 18px; box-shadow: inset 0 0 0 1px var(--linea); padding: clamp(18px, 2vw, 26px); }
+.bloque-titulo { margin: 0 0 16px; font: 400 clamp(1.4rem, 1vw + 1rem, 1.75rem)/1.1 var(--f-display); }
+
+/* Dos columnas desde 900px; en móvil: datos, recojo, mapa, (evento), resumen */
+.rejilla { margin-top: clamp(28px, 4vh, 44px); display: grid; gap: clamp(16px, 2vw, 24px); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 900px) {
+  .rejilla { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-auto-flow: row dense; }
+  .b-datos { grid-column: 1; grid-row: 1 / span 6; }
+  .b-listo, .b-mapa, .b-evento, .b-resumen { grid-column: 2; }
+}
+
+/* Campos */
+.campo-grupo { display: grid; gap: 6px; margin-bottom: 18px; }
+.campo-etq { display: block; font-weight: 600; }
+.opcional, .requerido { font-weight: 400; color: var(--crema-3); }
+.campo { width: 100%; min-height: 48px; padding: 12px 14px; border: 0; border-radius: 10px; background: var(--carbon-3); color: var(--crema); box-shadow: inset 0 0 0 1px var(--linea); font: 400 1rem var(--f-texto); color-scheme: dark; }
+textarea.campo { min-height: 96px; resize: vertical; }
+.campo:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--azafran); }
+.campo[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--tomate); }
+.ayuda { margin: 0; color: var(--crema-3); font-size: .875rem; }
+.err { margin: 0; color: #ff9a82; font-size: .9375rem; font-weight: 600; }
+.err::before { content: "! "; }
+
+/* Dónde se envía el comprobante */
+.medios { border: 0; margin: 0 0 14px; padding: 0; }
+.medios legend { padding: 0; margin-bottom: 8px; }
+.medios-opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.medio { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px 0 14px; border-radius: 999px; background: var(--carbon-3); box-shadow: inset 0 0 0 1px var(--linea); cursor: pointer; font-weight: 600; transition: box-shadow var(--d1) var(--ease); }
+.medio input { width: 20px; height: 20px; margin: 0; accent-color: var(--azafran); }
+.medio:has(input:checked) { box-shadow: inset 0 0 0 2px var(--azafran); }
+.medio:has(input:focus-visible) { outline: 2px solid var(--azafran); outline-offset: 3px; }
+.medios .ayuda { margin-top: 8px; }
+
+/* Método de pago */
+.pagos { border: 0; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
+.pagos legend { padding: 0; margin-bottom: 8px; font-weight: 600; }
+.metodos { display: grid; gap: 8px; }
+.pagos[aria-invalid="true"] .opcion-pago:not(.deshabilitada) { box-shadow: inset 0 0 0 1px var(--tomate); }
+.opcion-pago { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 64px; padding: 10px 14px 10px 10px; border-radius: 14px; background: var(--carbon-3); box-shadow: inset 0 0 0 1px var(--linea); cursor: pointer; transition: box-shadow var(--d1) var(--ease); }
+.opcion-pago input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.opcion-pago:has(input:checked) { box-shadow: inset 0 0 0 2px var(--azafran); }
+.opcion-pago:has(input:focus-visible) { outline: 2px solid var(--azafran); outline-offset: 3px; }
+.opcion-pago.deshabilitada { cursor: not-allowed; opacity: .6; }
+.pago-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--bosque); color: var(--crema); }
+.pago-ico svg { width: 22px; height: 22px; }
+.opcion-pago:has(input:checked) .pago-ico { background: var(--azafran); color: var(--carbon); }
+.pago-nombre { display: block; font-weight: 600; }
+.pago-detalle { display: block; color: var(--crema-3); font-size: .875rem; }
+.opcion-pago.deshabilitada .pago-detalle { color: var(--crema-2); }
+
+/* Tu pedido estará listo */
+.listo-texto { margin: 0; font: 400 clamp(1.5rem, 1.5vw + 1rem, 2rem)/1.15 var(--f-display); color: var(--azafran); }
+.listo-texto.vacio { color: var(--crema-2); font-size: 1.25rem; }
+.listo-extra { margin: 8px 0 0; color: var(--crema-2); }
+.b-listo .err { margin-top: 10px; }
+
+/* Mapa (miniatura) */
+.mini-mapa { position: relative; display: block; width: 100%; height: 200px; padding: 0; border: 0; border-radius: 14px; overflow: hidden; cursor: pointer; background: linear-gradient(150deg, #22301f, var(--carbon-3)); box-shadow: inset 0 0 0 1px var(--linea); }
+.mini-mapa:focus-visible { outline: 2px solid var(--azafran); outline-offset: 3px; }
+.mini-lienzo { position: absolute; inset: 0; }
+.mini-teselas { position: absolute; inset: 0; filter: saturate(.85) brightness(.85); }
+.mini-teselas img { position: absolute; left: 0; top: 0; width: 256px; height: 256px; max-width: none; }
+.mini-teselas .pin { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--carbon); color: var(--crema); font: 600 .875rem var(--f-dato); box-shadow: 0 0 0 2px var(--crema), 0 6px 12px rgb(0 0 0 / .45); }
+.mini-teselas .pin.activo { background: var(--azafran); color: var(--carbon); box-shadow: 0 0 0 3px var(--carbon), 0 8px 16px rgb(0 0 0 / .5); }
+.mini-atribucion { position: absolute; right: 6px; bottom: 6px; padding: 2px 6px; border-radius: 6px; background: rgb(15 13 12 / .8); color: var(--crema-2); font-size: .6875rem; }
+.mini-mapa.sin-teselas .mini-teselas { display: none; }
+.mini-etq { position: absolute; left: 10px; top: 10px; padding: 6px 12px; border-radius: 999px; background: rgb(15 13 12 / .88); color: var(--crema); font-weight: 600; font-size: .875rem; }
+.btn-texto { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 10px; padding: 0 4px; border: 0; background: none; color: var(--azafran); font: 600 1rem var(--f-texto); text-decoration: underline; text-underline-offset: .25em; cursor: pointer; }
+
+/* Catering */
+.evento-nota { margin: 0 0 14px; color: var(--crema-2); }
+
+/* Resumen + Pedir */
+.resumen-linea { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 0 0 12px; }
+.resumen-items { color: var(--crema-2); }
+.resumen-total { font: 400 1.75rem/1 var(--f-display); color: var(--crema); }
+.resumen-total.sin-precio { font-size: 1.25rem; color: var(--crema-2); }
+.resumen-nota { margin: 0 0 12px; color: var(--crema-3); font-size: .875rem; }
+.pedir { width: 100%; height: 56px; font-size: 1.0625rem; }
+@media (max-width: 899px) {
+  body { padding-bottom: 150px; }
+  .b-resumen { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; border-radius: 18px 18px 0 0; padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom)); background: var(--carbon-2); box-shadow: 0 -20px 40px -20px rgb(0 0 0 / .8), inset 0 1px 0 var(--linea); }
+  .resumen-linea { margin-bottom: 8px; }
+  .resumen-total { font-size: 1.375rem; }
+  .resumen-nota { display: none; }
+  .aviso-carrito { bottom: 160px; }
+}
+
+/* Pantalla final */
+.final { margin-top: clamp(24px, 4vh, 40px); display: grid; gap: 16px; max-width: 720px; }
+.final-numero { margin: 0; font: 600 clamp(1.5rem, 2vw + 1rem, 2.25rem)/1.1 var(--f-dato); color: var(--azafran); letter-spacing: .02em; }
+.final-estado { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px; border-radius: 999px; background: rgb(242 140 40 / .14); color: var(--azafran); font-weight: 600; width: fit-content; }
+.final-texto { margin: 0; font-size: 1.0625rem; }
+.final-dl { margin: 0; display: grid; gap: 10px; }
+.final-dl div { display: grid; gap: 2px; }
+.final-dl dt { color: var(--crema-3); font-size: .8125rem; text-transform: uppercase; letter-spacing: .06em; }
+.final-dl dd { margin: 0; }
+.final-dl a { color: var(--azafran); display: inline-block; min-height: 44px; line-height: 44px; }
+.final-lista { list-style: none; margin: 0; padding: 0; }
+.final-lista li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--linea); }
+.final-total { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0; }
+.final-total strong { font: 400 1.75rem/1 var(--f-display); color: var(--azafran); }
+.final-botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.final-whatsapp { display: grid; gap: 10px; padding: 16px; border-radius: 16px; background: rgb(57 89 65 / .45); box-shadow: inset 0 0 0 1px rgb(123 198 126 / .25); }
+.final-whatsapp .btn { width: fit-content; max-width: 100%; white-space: normal; height: auto; min-height: 52px; padding: 12px 22px; }
+
+/* ===== Ventana del mapa ===== */
+.mapa-dlg, .pago-dlg { margin: auto; padding: 0; border: 0; color: var(--crema); background: var(--carbon-2); box-shadow: inset 0 0 0 1px var(--linea), 0 40px 80px -30px rgb(0 0 0 / .9); overflow: hidden; }
+.mapa-dlg { width: min(1040px, calc(100vw - 24px)); height: min(680px, calc(100dvh - 24px)); max-height: none; max-width: none; border-radius: 20px; }
+.mapa-dlg[open] { display: flex; flex-direction: column; }
+.mapa-dlg::backdrop, .pago-dlg::backdrop { background: rgb(10 8 7 / .72); }
+.mapa-cabeza, .pago-cabeza { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--linea); }
+.mapa-cabeza h2, .pago-cabeza h2 { margin: 0; font: 400 clamp(1.4rem, 1.5vw + 1rem, 2rem)/1.1 var(--f-display); }
+.mapa-cabeza h2:focus, .pago-cabeza h2:focus { outline: none; }
+.mapa-cuerpo { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+.mapa-lado { position: relative; min-height: 0; background: var(--carbon-3); }
+.mapa-lienzo { position: absolute; inset: 0; }
+.mapa-lienzo[hidden] { display: none; }
+.mapa-aviso { margin: 0; padding: 20px; color: var(--crema-2); }
+.mapa-panel { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 16px 20px 20px; display: grid; align-content: start; gap: 16px; }
+.mapa-puntos { border: 0; margin: 0; padding: 0; }
+.mapa-puntos legend { padding: 0; margin-bottom: 8px; font-weight: 600; }
+.mapa-lista { display: grid; gap: 8px; }
+.mapa-opcion { position: relative; border-radius: 12px; background: var(--carbon-3); box-shadow: inset 0 0 0 1px var(--linea); }
+.mapa-opcion.activa { box-shadow: inset 0 0 0 2px var(--azafran); }
+.mapa-opcion input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.mapa-opcion:has(input:focus-visible) { outline: 2px solid var(--azafran); outline-offset: 3px; }
+.mapa-opcion label { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 56px; padding: 10px 12px; cursor: pointer; }
+.mapa-opcion.deshabilitada { opacity: .55; }
+.mapa-opcion.deshabilitada label { cursor: not-allowed; }
+.mapa-letra { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--carbon); color: var(--crema); font: 600 .9375rem var(--f-dato); box-shadow: inset 0 0 0 2px var(--crema-3); }
+.mapa-opcion.activa .mapa-letra { background: var(--azafran); color: var(--carbon); box-shadow: none; }
+.mapa-opcion-nombre { display: block; font-weight: 600; }
+.mapa-opcion-info { display: block; color: var(--crema-3); font-size: .8125rem; }
+.mapa-gmaps { display: inline-block; min-height: 44px; line-height: 44px; margin: -6px 0 0 60px; color: var(--azafran); font-size: .875rem; }
+.mapa-hora { display: grid; gap: 8px; padding: 14px; border-radius: 12px; background: var(--carbon-3); }
+.mapa-ventana, .mapa-nota { margin: 0; }
+.mapa-nota { color: var(--crema-3); font-size: .875rem; }
+.mapa-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mapa-campos .campo-etq { margin-bottom: 4px; font-size: .875rem; }
+.mapa-listo { width: 100%; }
+/* Marcadores de Leaflet (divIcon con letra) */
+.marcador { display: grid !important; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--carbon); color: var(--crema); font: 600 1rem var(--f-dato); box-shadow: 0 0 0 3px var(--crema), 0 8px 16px rgb(0 0 0 / .45); transition: transform var(--d1) var(--ease); }
+.marcador.activo { background: var(--azafran); color: var(--carbon); box-shadow: 0 0 0 3px var(--carbon), 0 10px 20px rgb(0 0 0 / .5); z-index: 1000 !important; }
+.marcador.deshabilitado { opacity: .5; }
+.marcador:focus-visible { outline: 3px solid var(--azafran); outline-offset: 3px; }
+.leaflet-container { font: 400 .875rem var(--f-texto); background: var(--carbon-3); }
+.leaflet-control-attribution { background: rgb(245 235 221 / .92) !important; color: #2a2420 !important; }
+.leaflet-control-attribution a { color: #8a3f00 !important; }
+
+/* ===== Ventana de pago ===== */
+.pago-dlg { width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); border-radius: 20px; }
+.pago-dlg[open] { display: flex; flex-direction: column; }
+.pago-cuerpo { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 18px 20px 22px; display: grid; gap: 14px; }
+.pago-monto-etq { margin: 0; color: var(--crema-2); }
+.pago-monto { margin: -10px 0 0; font: 400 clamp(2.5rem, 4vw + 1rem, 3.25rem)/1 var(--f-display); color: var(--azafran); }
+.pago-monto.sin-precio { font-size: 1.75rem; color: var(--crema-2); }
+.pago-nota { margin: 0; color: var(--crema-3); font-size: .875rem; }
+.pago-qrs { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.pago-qr { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.pago-qr img { width: 180px; height: 180px; border-radius: 12px; background: #fff; padding: 8px; }
+.pago-qr figcaption { font-weight: 600; }
+.pago-pasos { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.pago-numero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px; border-radius: 12px; background: var(--carbon-3); }
+.pago-numero p { margin: 0; }
+.pago-numero-etq { color: var(--crema-3); font-size: .8125rem; }
+.pago-numero-valor { font-size: 1.375rem !important; color: var(--crema); }
+.pago-titular { color: var(--crema-2); font-size: .9375rem; }
+.pago-copiar { height: 44px; padding: 0 16px; }
+.pago-campo { display: grid; gap: 6px; }
+.pago-error { margin: 0; color: #ff9a82; font-size: .9375rem; font-weight: 600; }
+.pago-error::before { content: "! "; }
+.pago-aviso { margin: 0; padding: 12px 14px; border-radius: 12px; background: rgb(57 89 65 / .45); }
+.pago-botones { display: grid; gap: 8px; }
+.pago-botones .btn { width: 100%; }
+
+@media (max-width: 760px) {
+  .mapa-dlg { width: 100vw; height: 100dvh; border-radius: 0; }
+  .mapa-cuerpo { grid-template-columns: 1fr; grid-template-rows: 38vh auto; overflow: auto; }
+  .mapa-panel { overflow: visible; }
+  .mapa-campos { grid-template-columns: 1fr; }
+  .pago-dlg { width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+  <span class="orbe-cursor"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Principal">
+    <a class="marca" href="index.html" aria-label="Malhú, inicio">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="catering.html">Catering</a></li>
+      <li><a href="plato-menu.html">Platos del día</a></li>
+      <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+    </ul>
+    <div class="acciones">
+      <button class="btn pausa" type="button" id="pausa" aria-pressed="false">
+        <svg class="ico-pausa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>
+        <span class="txt" id="pausa-txt">Pausar animaciones</span>
+      </button>
+      <button class="btn btn-primario boton-carrito" type="button" data-carrito-abrir aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+        <span class="txt">Carrito</span>
+        <span class="contador-carrito dato" data-carrito-cuenta hidden>0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <h1 class="titulo" id="titulo" tabindex="-1">Confirmación de datos</h1>
+  <p class="subtitulo" id="subtitulo">Revisa tus datos, elige cómo pagas y dónde recoges tu pedido.</p>
+
+  <form class="rejilla" id="form-pedido" novalidate>
+    <!-- Tus datos -->
+    <section class="bloque b-datos" aria-labelledby="t-datos">
+      <h2 class="bloque-titulo" id="t-datos">Tus datos</h2>
+
+      <div class="campo-grupo">
+        <label class="campo-etq" for="nombre">Nombre <span class="requerido">(obligatorio)</span></label>
+        <input class="campo" id="nombre" name="nombre" type="text" autocomplete="name" required aria-required="true" aria-invalid="false" aria-describedby="err-nombre">
+        <p class="err" id="err-nombre" hidden></p>
+      </div>
+
+      <fieldset class="medios" aria-describedby="ayuda-medio">
+        <legend class="campo-etq">¿Dónde te enviamos el comprobante?</legend>
+        <div class="medios-opciones">
+          <label class="medio"><input type="radio" name="medio" value="celular" checked> Celular</label>
+          <label class="medio"><input type="radio" name="medio" value="correo"> Correo</label>
+        </div>
+        <p class="ayuda" id="ayuda-medio">Elige uno: ahí te llega el comprobante de tu pedido.</p>
+      </fieldset>
+
+      <div class="campo-grupo" id="grupo-celular">
+        <label class="campo-etq" for="celular">Número de celular <span class="requerido">(obligatorio)</span></label>
+        <input class="campo" id="celular" name="celular" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="11" placeholder="9XX XXX XXX" aria-required="true" aria-invalid="false" aria-describedby="err-celular privacidad-celular">
+        <p class="err" id="err-celular" hidden></p>
+        <p class="ayuda" id="privacidad-celular">Malhú te envía el comprobante por WhatsApp a este número. Solo lo usamos para tu pedido.</p>
+      </div>
+
+      <div class="campo-grupo" id="grupo-correo" hidden>
+        <label class="campo-etq" for="correo">Correo <span class="requerido">(obligatorio)</span></label>
+        <input class="campo" id="correo" name="correo" type="email" inputmode="email" autocomplete="email" aria-required="true" aria-invalid="false" aria-describedby="err-correo nota-correo privacidad-correo">
+        <p class="err" id="err-correo" hidden></p>
+        <p class="ayuda" id="nota-correo" hidden>Te enviaremos la confirmación de tu pedido a este correo.</p>
+        <p class="ayuda" id="privacidad-correo">Usaremos tu correo solo para enviarte el comprobante.</p>
+      </div>
+
+      <fieldset class="pagos" id="pagos" role="radiogroup" aria-labelledby="leyenda-pago" aria-describedby="err-pago">
+        <legend id="leyenda-pago">Método de pago <span class="requerido">(obligatorio)</span></legend>
+        <div id="metodos" class="metodos"></div>
+        <p class="err" id="err-pago" hidden></p>
+      </fieldset>
+
+      <div class="campo-grupo">
+        <label class="campo-etq" for="notas">Notas <span class="opcional">(opcional)</span></label>
+        <textarea class="campo" id="notas" name="notas" rows="3" placeholder="Ej. sin cebolla, salsa aparte"></textarea>
+      </div>
+    </section>
+
+    <!-- Tu pedido estará listo -->
+    <section class="bloque b-listo" aria-labelledby="t-listo" data-solo-platos>
+      <h2 class="bloque-titulo" id="t-listo">Tu pedido estará listo</h2>
+      <p class="listo-texto vacio" id="listo-texto">Elige dónde y a qué hora recoges</p>
+      <p class="listo-extra" id="listo-extra" hidden></p>
+      <p class="err" id="err-recojo" hidden></p>
+    </section>
+
+    <!-- Mapa -->
+    <section class="bloque b-mapa" aria-labelledby="t-mapa" data-solo-platos>
+      <h2 class="bloque-titulo" id="t-mapa">Mapa</h2>
+      <button class="mini-mapa" type="button" id="mini-mapa" aria-label="Abrir el mapa de puntos de recojo">
+        <span class="mini-lienzo" id="mini-lienzo"></span>
+        <span class="mini-etq" id="mini-etq" aria-hidden="true">Ver mapa</span>
+      </button>
+      <button class="btn-texto" type="button" id="elegir-punto" aria-describedby="err-recojo">Elegir punto de recojo</button>
+    </section>
+
+    <!-- Catering -->
+    <section class="bloque b-evento" aria-labelledby="t-evento" data-solo-catering hidden>
+      <h2 class="bloque-titulo" id="t-evento">Entrega del catering</h2>
+      <p class="evento-nota">Malhú coordina contigo la entrega del catering.</p>
+      <div class="campo-grupo">
+        <label class="campo-etq" for="lugar">Lugar del evento (dirección o referencia) <span class="requerido">(obligatorio)</span></label>
+        <input class="campo" id="lugar" name="lugar" type="text" autocomplete="street-address" aria-invalid="false" aria-describedby="err-lugar">
+        <p class="err" id="err-lugar" hidden></p>
+      </div>
+    </section>
+
+    <!-- Resumen + Pedir -->
+    <section class="bloque b-resumen" aria-labelledby="t-resumen">
+      <h2 class="sr" id="t-resumen">Resumen del pedido</h2>
+      <p class="resumen-linea">
+        <span class="resumen-items" id="res-items"></span>
+        <span><span class="sr" id="res-etq">Total</span><strong class="resumen-total" id="res-total"></strong></span>
+      </p>
+      <p class="resumen-nota" id="res-nota" hidden></p>
+      <button class="btn btn-primario pedir" type="submit" id="pedir">Pedir</button>
+    </section>
+  </form>
+
+  <!-- Pantalla final -->
+  <section class="final" id="final" hidden aria-labelledby="titulo">
+    <p class="final-numero" id="f-numero"></p>
+    <p class="final-estado" id="f-estado"></p>
+    <p class="final-texto" id="f-pago-texto"></p>
+    <p class="final-texto" id="f-envio-texto"></p>
+    <p class="final-texto" id="f-correo-texto"></p>
+    <dl class="final-dl bloque" id="f-datos"></dl>
+    <div class="bloque">
+      <h2 class="bloque-titulo">Resumen</h2>
+      <ul class="final-lista" id="f-items"></ul>
+      <p class="final-total"><span id="f-total-etq">Total</span><strong id="f-total"></strong></p>
+    </div>
+    <div class="final-whatsapp" id="f-whatsapp" hidden>
+      <p class="final-texto" id="f-whatsapp-texto"></p>
+      <button class="btn btn-primario" type="button" id="enviar-comprobante"></button>
+    </div>
+    <div class="final-botones">
+      <button class="btn btn-primario" type="button" id="copiar-numero">Copiar número de pedido</button>
+      <a class="btn btn-fantasma" href="index.html">Volver al inicio</a>
+      <button class="btn btn-fantasma" type="button" id="reenviar" hidden>Volver a abrir WhatsApp</button>
+    </div>
+    <p class="sr" role="status" id="f-estado-copia"></p>
+  </section>
+
+  <p class="sr" aria-live="assertive" id="anuncio-errores"></p>
+</main>
+
+<footer class="pie">
+  <div class="pie-in">
+    <div class="logo"><img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166" loading="lazy"></div>
+    <nav aria-label="Secciones">
+      <h2>Pide</h2>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catering.html">Catering para eventos</a></li>
+        <li><a href="plato-menu.html">Platos del día</a></li>
+        <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Malhú</h2>
+      <ul>
+        <li><a href="principal.html">Acceso propietario</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie-legal"><p>© <span id="anio">2026</span> Malhú Coffee break &amp; Catering</p><p>Precios en soles (S/).</p></div>
+</footer>
+
+<script src="puntos-recojo.js"></script>
+<script src="mapa-recojo.js"></script>
+<script src="pago.js"></script>
+<script src="confirmar-pedido.js"></script>
+</body>
+</html>

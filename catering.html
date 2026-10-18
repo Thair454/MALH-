@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catering para tu evento · Malhú Coffee break &amp; Catering</title>
+<meta name="description" content="Catering para reuniones, celebraciones y eventos grandes. Elige el tipo de evento, ajusta las personas y agrégalo a tu carrito con un costo estimado.">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="assets/img/logo-malhu-emblema.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js"></script>
+<script src="visual.js"></script>
+<script src="carrito.js"></script>
+<script src="pedido.js"></script>
+<script src="detalle-pedido.js"></script>
+<style>
+/* ===== Solo de esta página ===== */
+.pagina { max-width: 1440px; margin: 0 auto; padding: calc(var(--nav-h) + clamp(32px, 6vh, 64px)) var(--gutter) clamp(72px, 10vh, 120px); }
+.cabeza { max-width: 760px; }
+.titulo { margin: 0; font: 400 clamp(2.75rem, 5vw + .5rem, 5.5rem)/.95 var(--f-display); letter-spacing: -.015em; }
+.subtitulo { margin: 18px 0 0; max-width: 52ch; color: var(--crema-2); font-size: clamp(1.0625rem, .4vw + 1rem, 1.25rem); text-wrap: pretty; }
+
+/* Cuadrícula del boceto: tipo y trabajo a la izquierda; "Tu catering" fijo a la derecha;
+   abajo, qué ofrecemos y contactos */
+.rejilla {
+  margin-top: clamp(40px, 6vh, 64px);
+  display: grid; gap: clamp(20px, 2.4vw, 32px);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    "tipo tipo tipo tipo tipo tipo tipo tipo pedido pedido pedido pedido"
+    "trabajo trabajo trabajo trabajo trabajo trabajo trabajo trabajo pedido pedido pedido pedido"
+    "ofrece ofrece ofrece ofrece contactos contactos contactos contactos pedido pedido pedido pedido";
+  align-items: start;
+}
+.bloque { background: rgb(28 24 21 / .82); border-radius: 18px; box-shadow: inset 0 0 0 1px var(--linea); padding: clamp(20px, 2vw, 28px); }
+.bloque-titulo { margin: 0 0 18px; font: 400 clamp(1.5rem, 1.2vw + 1rem, 2rem)/1.05 var(--f-display); }
+.b-tipo { grid-area: tipo; }
+.b-pedido { grid-area: pedido; position: sticky; top: calc(var(--nav-h) + 20px); }
+.b-trabajo { grid-area: trabajo; }
+.b-ofrece { grid-area: ofrece; }
+.b-contactos { grid-area: contactos; }
+
+/* 1) Tipo de evento */
+.tipos { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tipos legend { padding: 0; }
+.tipo {
+  position: relative; display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; cursor: pointer;
+  background: var(--carbon-3); box-shadow: inset 0 0 0 1px var(--linea);
+  transition: transform var(--d2) var(--ease), box-shadow var(--d1) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) { .tipo:hover { transform: translateY(-4px); } }
+.tipo:has(input:checked) { box-shadow: inset 0 0 0 2px var(--azafran); }
+.tipo:has(input:focus-visible) { outline: 2px solid var(--azafran); outline-offset: 3px; }
+.tipo-foto { display: block; aspect-ratio: 3 / 2; overflow: hidden; }
+.tipo-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--d2) var(--ease); }
+@media (hover: hover) and (pointer: fine) { .tipo:hover .tipo-foto img { transform: scale(1.04); } }
+.tipo-texto { display: grid; gap: 4px; padding: 14px 16px 16px; }
+.tipo-nombre { font: 400 1.375rem/1.1 var(--f-display); }
+.tipo-rango { color: var(--crema-2); }
+.tipo-precio { color: var(--crema-3); font-size: .875rem; }
+.tipo-marca { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--azafran); color: var(--carbon); opacity: 0; transform: scale(.8); transition: opacity var(--d1) var(--ease), transform var(--d1) var(--ease); }
+.tipo-marca svg { width: 18px; height: 18px; }
+.tipo:has(input:checked) .tipo-marca { opacity: 1; transform: none; }
+
+/* 2) Tu catering */
+.pedido-rango { margin: -8px 0 18px; color: var(--crema-2); }
+.campo-label { display: block; font-weight: 600; margin-bottom: 8px; }
+.personas { display: inline-flex; align-items: center; border-radius: 999px; background: var(--carbon-3); }
+.personas:has(input:focus-visible) { outline: 2px solid var(--azafran); outline-offset: 2px; }
+.paso { width: 48px; height: 48px; border: 0; border-radius: 999px; background: none; color: var(--crema); display: grid; place-items: center; cursor: pointer; transition: transform var(--d1) var(--ease); }
+.paso:active { transform: scale(.94); }
+.paso:disabled { opacity: .35; cursor: not-allowed; }
+.paso svg { width: 18px; height: 18px; }
+.personas input { width: 72px; height: 48px; border: 0; background: none; color: var(--crema); text-align: center; font: 600 1.25rem var(--f-dato); -moz-appearance: textfield; appearance: textfield; }
+.personas input:focus-visible { outline: none; }
+.personas input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.fila-campo { margin-top: 20px; }
+.fecha { width: 100%; height: 48px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--carbon-3); color: var(--crema); box-shadow: inset 0 0 0 1px var(--linea); font: 400 1rem var(--f-texto); color-scheme: dark; }
+.fecha:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--azafran); }
+.costo-caja { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--linea); }
+.costo-etiqueta { margin: 0; color: var(--crema-2); }
+.costo { margin: 4px 0 0; font: 400 clamp(2.5rem, 3vw + 1rem, 3.5rem)/1 var(--f-display); color: var(--azafran); font-variant-numeric: tabular-nums; }
+.costo.sin-precio { font-size: clamp(1.75rem, 1.6vw + 1rem, 2.25rem); color: var(--crema-2); }
+.precio-persona { margin: 8px 0 0; color: var(--crema-3); }
+.nota { margin: 14px 0 0; color: var(--crema-3); font-size: .875rem; }
+.agregar { width: 100%; margin-top: 18px; }
+
+/* 3) Nuestro trabajo */
+.foto-grande { position: relative; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: var(--carbon-3); margin: 0; }
+.foto-grande img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--d2) var(--ease); }
+.foto-grande img.visible { opacity: 1; }
+.foto-pie { margin: 12px 0 0; color: var(--crema-2); }
+.miniaturas { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.miniatura { aspect-ratio: 1; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: var(--carbon-3); cursor: pointer; opacity: .6; transition: opacity var(--d1) var(--ease), transform var(--d1) var(--ease); }
+.miniatura img { width: 100%; height: 100%; object-fit: cover; }
+.miniatura[aria-pressed="true"] { opacity: 1; box-shadow: inset 0 0 0 2px var(--azafran); }
+.miniatura[aria-pressed="true"] img { outline: 2px solid var(--azafran); outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) { .miniatura:hover { opacity: 1; transform: translateY(-2px); } }
+
+/* 4) ¿Qué ofrecemos? */
+.ofrece { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ofrece-item { display: flex; align-items: center; gap: 12px; }
+.ofrece-ico { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--bosque); color: var(--crema); }
+.ofrece-ico svg { width: 20px; height: 20px; }
+
+/* 5) Contactos */
+.contactos { margin: 0; display: grid; gap: 14px; }
+.contacto dt { color: var(--crema-3); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
+.contacto dd { margin: 2px 0 0; }
+.contacto a { display: inline-block; min-height: 44px; line-height: 44px; color: var(--crema); }
+.contactos-vacio { margin: 0; color: var(--crema-2); }
+.contacto-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; column-gap: 20px; }
+
+/* ===== Tablet ===== */
+@media (max-width: 1100px) {
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "tipo tipo" "pedido trabajo" "ofrece contactos";
+  }
+  .b-pedido { position: static; }
+}
+/* ===== Móvil: una columna en el orden pedido ===== */
+@media (max-width: 760px) {
+  .rejilla { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tipo" "pedido" "trabajo" "ofrece" "contactos"; }
+  .tipos { grid-template-columns: 1fr; }
+  .tipo { flex-direction: row; align-items: stretch; }
+  .tipo-foto { width: 112px; flex: none; aspect-ratio: auto; }
+  .tipo-texto { padding: 14px 48px 14px 14px; }
+  .miniaturas { gap: 6px; }
+}
+</style>
+</head>
+<body>
+<a class="btn btn-primario saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- Fondo dinámico -->
+<div class="fondo" aria-hidden="true">
+  <span class="orbe orbe-1"></span>
+  <span class="orbe orbe-2"></span>
+  <span class="orbe orbe-3"></span>
+  <span class="orbe-cursor"></span>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <nav class="cabecera-in" aria-label="Principal">
+    <a class="marca" href="index.html" aria-label="Malhú, inicio">
+      <img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166">
+    </a>
+    <ul class="menu">
+      <li><a href="catering.html" aria-current="page">Catering</a></li>
+      <li><a href="plato-menu.html">Platos del día</a></li>
+      <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+    </ul>
+    <div class="acciones">
+      <button class="btn pausa" type="button" id="pausa" aria-pressed="false">
+        <svg class="ico-pausa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>
+        <span class="txt" id="pausa-txt">Pausar animaciones</span>
+      </button>
+      <button class="btn btn-primario boton-carrito" type="button" data-carrito-abrir aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+        <span class="txt">Carrito</span>
+        <span class="contador-carrito dato" data-carrito-cuenta hidden>0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="contenido" class="pagina">
+  <div class="cabeza revela">
+    <h1 class="titulo"><span class="linea"><span>Catering para tu evento</span></span></h1>
+    <p class="subtitulo entra">Elige el tipo de evento, ajusta cuántas personas serán y agrégalo a tu carrito con un costo estimado.</p>
+  </div>
+
+  <div class="rejilla">
+    <!-- 1) Tipo de evento -->
+    <section class="bloque b-tipo" aria-labelledby="t-tipo">
+      <fieldset class="tipos" id="tipos">
+        <legend><h2 class="bloque-titulo" id="t-tipo">Tipo de evento</h2></legend>
+      </fieldset>
+    </section>
+
+    <!-- 2) Tu catering -->
+    <section class="bloque b-pedido" aria-labelledby="t-pedido">
+      <h2 class="bloque-titulo" id="t-pedido">Tu catering</h2>
+      <p class="pedido-rango" id="rango-texto"></p>
+
+      <label class="campo-label" for="personas">Número de personas</label>
+      <div class="personas">
+        <button class="paso" type="button" id="menos" aria-label="Una persona menos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+        </button>
+        <input id="personas" type="number" inputmode="numeric" min="10" max="20" value="10">
+        <button class="paso" type="button" id="mas" aria-label="Una persona más">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <div class="fila-campo">
+        <label class="campo-label" for="fecha">Fecha del evento <span style="font-weight:400;color:var(--crema-3)">(opcional)</span></label>
+        <input class="fecha" id="fecha" type="date">
+      </div>
+
+      <div class="costo-caja">
+        <p class="costo-etiqueta">Costo estimado</p>
+        <p class="costo" id="costo">Por confirmar</p>
+        <p class="precio-persona dato" id="precio-persona"></p>
+        <p class="sr" id="costo-anuncio" aria-live="polite"></p>
+        <p class="nota">Costo estimado. Malhú confirma el precio final.</p>
+        <button class="btn btn-primario agregar" type="button" id="agregar-catering">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+          Agregar al carrito
+        </button>
+      </div>
+    </section>
+
+    <!-- 3) Nuestro trabajo -->
+    <section class="bloque b-trabajo" aria-labelledby="t-trabajo">
+      <h2 class="bloque-titulo" id="t-trabajo">Nuestro trabajo</h2>
+      <figure class="foto-grande">
+        <img id="foto-a" class="visible" src="Slide Shows/Catering/catering01.jpg" alt="Mesa de bocaditos para un bautizo: sánguches en pan brioche, empanadas, alfajores, brownies y mini tartaletas, con arreglos de flores blancas" width="900" height="1200" decoding="async" fetchpriority="high">
+        <img id="foto-b" alt="" width="900" height="1200" decoding="async">
+      </figure>
+      <p class="foto-pie" id="foto-pie" aria-live="polite">Bocaditos dulces y salados con mesa decorada</p>
+      <div class="miniaturas" id="miniaturas" role="group" aria-label="Otras fotos de eventos"></div>
+    </section>
+
+    <!-- 4) ¿Qué ofrecemos? -->
+    <section class="bloque b-ofrece" aria-labelledby="t-ofrece">
+      <h2 class="bloque-titulo" id="t-ofrece">¿Qué ofrecemos?</h2>
+      <ul class="ofrece" id="ofrece-lista"></ul>
+    </section>
+
+    <!-- 5) Contactos (solo información) -->
+    <section class="bloque b-contactos" id="contactos" aria-labelledby="t-contactos">
+      <h2 class="bloque-titulo" id="t-contactos">Contactos</h2>
+      <dl class="contactos" id="contactos-lista"></dl>
+      <p class="contactos-vacio" id="contactos-vacio" hidden>Pronto publicaremos nuestros datos de contacto.</p>
+    </section>
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="pie-in">
+    <div class="logo"><img src="assets/img/logo-malhu.png" alt="Malhú Coffee break &amp; Catering" width="473" height="166" loading="lazy"></div>
+    <nav aria-label="Secciones">
+      <h2>Pide</h2>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catering.html" aria-current="page">Catering para eventos</a></li>
+        <li><a href="plato-menu.html">Platos del día</a></li>
+        <li><a href="plato-personalizado.html">Arma tu plato</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Malhú</h2>
+      <ul>
+        <li><a href="#contactos">Contactos</a></li>
+        <li><a href="principal.html">Acceso propietario</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie-legal"><p>© <span id="anio">2026</span> Malhú Coffee break &amp; Catering</p><p>Precios en soles (S/).</p></div>
+</footer>
+
+<script src="catering-datos.js"></script>
+<script src="catering.js"></script>
+</body>
+</html>
